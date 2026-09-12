@@ -189,6 +189,10 @@ export default {
     allStatuses: "All statuses",
     allRuntimes: "All runtimes",
     statusActive: "Active",
+    keyStoredTitle: "Key stored securely",
+    keyStoredHelp:
+      "The complete key is not returned after reload. Rotate the key to reveal a new value.",
+    keyNotGenerated: "No API key has been generated yet.",
     statusArchived: "Archived",
     statusInvalid: "Requires attention",
     id: "#",
@@ -1499,6 +1503,27 @@ export default {
     keyCopy: "key copy on clipboard",
     confirmGenerateMessage:
       "The generation of the new key also involves an update of the parameters for idelium-cl, confirm?",
+    rotationEyebrow: "API key rotation",
+    rotationLegacyTitle: "Create a replacement API key",
+    rotationLegacyHelp:
+      "Choose how long the replacement key remains valid. The current key is invalidated immediately after confirmation.",
+    expiryPolicy: "Expiration policy",
+    expiry30: "30 days",
+    expiry30Help: "Short-lived access for temporary automation.",
+    expiry60: "60 days",
+    expiry60Help: "Bounded access for short delivery cycles.",
+    expiry90: "90 days",
+    expiry90Help: "Recommended default for managed automation.",
+    expiry180: "180 days",
+    expiry180Help: "Extended access with scheduled rotation.",
+    expiry365: "365 days",
+    expiry365Help: "Maximum supported lifetime.",
+    expiryNever: "No expiration",
+    expiryNeverHelp:
+      "Legacy compatibility; periodic rotation is still required.",
+    confirmRotation: "Create replacement key",
+    rotationLegacyFailed:
+      "The API key could not be replaced. The current key remains valid.",
     tabsLabel: "API key workspace sections",
     tabOverview: "Overview",
     tabOverviewDescription: "Current legacy key and config export.",

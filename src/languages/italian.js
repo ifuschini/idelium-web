@@ -1501,6 +1501,27 @@ export default {
     keyCopy: "chiave copiata",
     confirmGenerateMessage:
       "La generazione della nuova chiave comporta un aggiornamento anche dei parametri per idelium-cl, confermi ?",
+    rotationEyebrow: "Rotazione chiave API",
+    rotationLegacyTitle: "Crea una chiave API sostitutiva",
+    rotationLegacyHelp:
+      "Scegli per quanto tempo sarà valida la chiave sostitutiva. La chiave corrente viene invalidata subito dopo la conferma.",
+    expiryPolicy: "Policy di scadenza",
+    expiry30: "30 giorni",
+    expiry30Help: "Accesso breve per automazioni temporanee.",
+    expiry60: "60 giorni",
+    expiry60Help: "Accesso limitato per cicli di delivery brevi.",
+    expiry90: "90 giorni",
+    expiry90Help: "Valore predefinito consigliato per automazioni gestite.",
+    expiry180: "180 giorni",
+    expiry180Help: "Accesso esteso con rotazione pianificata.",
+    expiry365: "365 giorni",
+    expiry365Help: "Durata massima supportata.",
+    expiryNever: "Nessuna scadenza",
+    expiryNeverHelp:
+      "Compatibilità legacy; è comunque richiesta una rotazione periodica.",
+    confirmRotation: "Crea chiave sostitutiva",
+    rotationLegacyFailed:
+      "Non è stato possibile sostituire la chiave API. La chiave corrente resta valida.",
     tabsLabel: "Sezioni workspace API key",
     tabOverview: "Panoramica",
     tabOverviewDescription: "Chiave legacy corrente ed export config.",
@@ -1518,6 +1539,10 @@ export default {
     cliEyebrow: "Idelium CLI",
     credentialEyebrow: "Credenziale",
     statusActive: "Attiva",
+    keyStoredTitle: "Chiave salvata in modo sicuro",
+    keyStoredHelp:
+      "La chiave completa non viene restituita dopo il reload. Ruota la chiave per visualizzare un nuovo valore.",
+    keyNotGenerated: "Non è stata ancora generata alcuna chiave API.",
     packageEyebrow: "Pacchetto",
     cliTitle: "Idelium CLI",
     cliInfo:

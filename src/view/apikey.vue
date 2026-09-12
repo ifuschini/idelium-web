@@ -66,7 +66,17 @@
         </div>
 
         <div class="apikey-value-panel">
-          <code class="apikey-value">{{ apikey }}</code>
+          <code v-if="apikey" class="apikey-value">{{ apikey }}</code>
+          <div v-else-if="legacyKeyPersisted" class="apikey-stored-state" role="status">
+            <font-awesome-icon icon="key" aria-hidden="true" />
+            <div>
+              <strong>{{ language[config.currentLanguage].Apikey.keyStoredTitle }}</strong>
+              <span>{{ language[config.currentLanguage].Apikey.keyStoredHelp }}</span>
+            </div>
+          </div>
+          <span v-else class="apikey-empty-state">
+            {{ language[config.currentLanguage].Apikey.keyNotGenerated }}
+          </span>
         </div>
 
         <div class="apikey-actions">
@@ -102,6 +112,83 @@
             {{ language[config.currentLanguage].Apikey.btnGenerateKey }}
           </button>
         </div>
+
+        <section
+          v-if="showLegacyRotationPanel"
+          class="apikey-legacy-rotation"
+          aria-labelledby="legacy-key-rotation-title"
+        >
+          <div class="apikey-card-header">
+            <div>
+              <p class="apikey-eyebrow">
+                {{ language[config.currentLanguage].Apikey.rotationEyebrow }}
+              </p>
+              <h3 id="legacy-key-rotation-title" class="apikey-card-title">
+                {{
+                  language[config.currentLanguage].Apikey.rotationLegacyTitle
+                }}
+              </h3>
+              <p class="apikey-cli-copy">
+                {{ language[config.currentLanguage].Apikey.rotationLegacyHelp }}
+              </p>
+            </div>
+            <font-awesome-icon
+              icon="clock"
+              class="apikey-legacy-rotation-icon"
+              aria-hidden="true"
+            />
+          </div>
+
+          <fieldset class="apikey-expiry-options">
+            <legend>
+              {{ language[config.currentLanguage].Apikey.expiryPolicy }}
+            </legend>
+            <label
+              v-for="option in legacyExpiryOptions"
+              v-bind:key="option.value"
+              :class="[
+                'apikey-expiry-option',
+                {
+                  'apikey-expiry-option--selected':
+                    legacyExpiryDays === option.value,
+                },
+              ]"
+            >
+              <input
+                v-model="legacyExpiryDays"
+                type="radio"
+                name="legacy-key-expiry"
+                :value="option.value"
+              />
+              <span>
+                <strong>{{ option.label }}</strong>
+                <small>{{ option.description }}</small>
+              </span>
+            </label>
+          </fieldset>
+
+          <p v-if="legacyRotationError" class="alert alert-danger apikey-alert">
+            {{ legacyRotationError }}
+          </p>
+          <div class="apikey-legacy-rotation-actions">
+            <button
+              type="button"
+              class="btn btn-outline-secondary apikey-secondary-action"
+              v-on:click="cancelLegacyKeyRotation()"
+            >
+              <font-awesome-icon icon="times-circle" aria-hidden="true" />
+              {{ language[config.currentLanguage].Apikey.actions.cancel }}
+            </button>
+            <button
+              type="button"
+              class="btn btn-primary apikey-primary-action"
+              v-on:click="generateAction()"
+            >
+              <font-awesome-icon icon="sync" aria-hidden="true" />
+              {{ language[config.currentLanguage].Apikey.confirmRotation }}
+            </button>
+          </div>
+        </section>
       </article>
 
       <aside
@@ -181,6 +268,25 @@
             }}
           </p>
         </div>
+        <IdButton
+          v-if="canCreateCredential"
+          class="apikey-credential-create-action"
+          icon-only
+          variant="primary"
+          :accessible-label="
+            language[config.currentLanguage].Apikey.createTooltip
+          "
+          :tooltip="language[config.currentLanguage].Apikey.createTooltip"
+          v-on:click="selectApiKeyTab('create')"
+        >
+          <template #icon>
+            <font-awesome-icon
+              icon="plus"
+              class="idelium-action-icon--create"
+              aria-hidden="true"
+            />
+          </template>
+        </IdButton>
       </div>
       <EnterpriseDataTable
         :accessible-label="
@@ -190,6 +296,7 @@
         :capabilities="credentialCapabilities"
         :columns="credentialColumns"
         :copy="credentialTableCopy"
+        density="compact"
         :has-active-filters="hasCredentialFilters"
         :local-limit="100"
         :rows="credentialRows"
@@ -848,11 +955,116 @@
   white-space: pre-wrap;
 }
 
+.apikey-stored-state,
+.apikey-empty-state {
+  align-items: flex-start;
+  color: var(--id-color-text-muted);
+  display: flex;
+  gap: 0.8rem;
+  line-height: 1.5;
+  min-height: 9.5rem;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.apikey-stored-state {
+  color: var(--id-color-success-text, var(--id-color-text));
+  flex-direction: row;
+  justify-content: flex-start;
+}
+
+.apikey-stored-state svg {
+  color: var(--id-color-success, var(--id-color-primary));
+  font-size: 1.35rem;
+  margin-top: 0.15rem;
+}
+
+.apikey-stored-state div {
+  display: grid;
+  gap: 0.25rem;
+}
+
 .apikey-actions {
   display: flex;
   flex-wrap: wrap;
   gap: 0.85rem;
   margin-top: 1rem;
+}
+
+.apikey-legacy-rotation {
+  background: color-mix(
+    in srgb,
+    var(--id-color-warning) 7%,
+    var(--id-color-surface-raised)
+  );
+  border: 1px solid
+    color-mix(in srgb, var(--id-color-warning) 38%, var(--id-color-border));
+  border-radius: 1rem;
+  display: grid;
+  gap: 1rem;
+  margin-top: 1rem;
+  padding: 1rem;
+}
+
+.apikey-legacy-rotation-icon {
+  color: var(--id-color-warning);
+  font-size: 1.5rem;
+}
+
+.apikey-expiry-options {
+  border: 0;
+  display: grid;
+  gap: 0.65rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin: 0;
+  padding: 0;
+}
+
+.apikey-expiry-options legend {
+  color: var(--id-color-text-subtle);
+  font-size: 0.68rem;
+  font-weight: 850;
+  grid-column: 1 / -1;
+  letter-spacing: 0.12rem;
+  margin-bottom: 0.15rem;
+  text-transform: uppercase;
+}
+
+.apikey-expiry-option {
+  align-items: flex-start;
+  background: var(--id-color-surface);
+  border: 1px solid var(--id-color-border);
+  border-radius: 0.85rem;
+  color: var(--id-color-text);
+  cursor: pointer;
+  display: grid;
+  gap: 0.65rem;
+  grid-template-columns: auto minmax(0, 1fr);
+  min-height: 5rem;
+  padding: 0.85rem;
+}
+
+.apikey-expiry-option--selected {
+  border-color: var(--id-color-primary);
+  box-shadow: 0 0 0 2px
+    color-mix(in srgb, var(--id-color-primary) 18%, transparent);
+}
+
+.apikey-expiry-option strong,
+.apikey-expiry-option small {
+  display: block;
+}
+
+.apikey-expiry-option small {
+  color: var(--id-color-text-muted);
+  line-height: 1.4;
+  margin-top: 0.25rem;
+}
+
+.apikey-legacy-rotation-actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
 }
 
 .apikey-secondary-action,
@@ -1145,6 +1357,10 @@
   .apikey-revocation-form {
     grid-template-columns: 1fr;
   }
+
+  .apikey-expiry-options {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media only screen and (max-width: 600px) {
@@ -1173,6 +1389,10 @@
   .apikey-tabs {
     grid-template-columns: 1fr;
   }
+
+  .apikey-expiry-options {
+    grid-template-columns: 1fr;
+  }
 }
 </style>
 <script>
@@ -1181,6 +1401,7 @@ import apiClient from "@/services/apiClient";
 import copy from "copy-to-clipboard";
 import download from "@/shared/download";
 import EnterpriseDataTable from "@/components/grid/EnterpriseDataTable.vue";
+import IdButton from "@/components/ui/IdButton.vue";
 import {
   applyCredentialRotationResult,
   createRevealOnceSession,
@@ -1199,14 +1420,17 @@ import {
 
 export default {
   name: "ApikeyComponent",
-  components: { EnterpriseDataTable },
+  components: { EnterpriseDataTable, IdButton },
   data() {
     return {
       activeApikeyTab: "overview",
       status: "not_accepted",
       error: null,
+      legacyExpiryDays: "90",
+      legacyRotationError: "",
       showError: false,
       apikey: null,
+      legacyKeyPersisted: false,
       credentials: [],
       credentialCapabilities: [
         "credential.create",
@@ -1237,6 +1461,7 @@ export default {
       rotationErrors: [],
       rotationPolicy: "overlap-24h",
       rotationTarget: null,
+      showLegacyRotationPanel: false,
       credentialStatusOptions: [
         "active",
         "expiring",
@@ -1249,6 +1474,29 @@ export default {
     };
   },
   computed: {
+    legacyExpiryOptions() {
+      const copy = this.language[this.config.currentLanguage].Apikey;
+      return [
+        { value: "30", label: copy.expiry30, description: copy.expiry30Help },
+        { value: "60", label: copy.expiry60, description: copy.expiry60Help },
+        { value: "90", label: copy.expiry90, description: copy.expiry90Help },
+        {
+          value: "180",
+          label: copy.expiry180,
+          description: copy.expiry180Help,
+        },
+        {
+          value: "365",
+          label: copy.expiry365,
+          description: copy.expiry365Help,
+        },
+        {
+          value: "never",
+          label: copy.expiryNever,
+          description: copy.expiryNeverHelp,
+        },
+      ];
+    },
     apikeyTabs() {
       const copy = this.language[this.config.currentLanguage].Apikey;
       return [
@@ -1307,6 +1555,20 @@ export default {
     },
     credentialActions() {
       const copy = this.language[this.config.currentLanguage].Apikey;
+      const presentation = {
+        audit: {
+          icon: "history",
+          iconClass: "idelium-action-icon--navigation",
+        },
+        revoke: {
+          icon: "trash",
+          iconClass: "idelium-action-icon--delete",
+        },
+        rotate: {
+          icon: "sync",
+          iconClass: "idelium-action-icon--refresh",
+        },
+      };
       return credentialInventoryActions(
         {},
         {
@@ -1318,10 +1580,16 @@ export default {
             rotateTooltip: copy.rotateTooltip,
           },
         },
-      ).map((action) => ({
-        ...action,
-        label: copy.actions[action.id] || action.label,
-      }));
+      )
+        .filter((action) => action.id !== "create")
+        .map((action) => ({
+          ...action,
+          ...presentation[action.id],
+          label: copy.actions[action.id] || action.label,
+        }));
+    },
+    canCreateCredential() {
+      return this.credentialCapabilities.includes("credential.create");
     },
     credentialScopeOptions() {
       const copy = this.language[this.config.currentLanguage].Apikey;
@@ -1479,7 +1747,8 @@ export default {
         })
         .then((response) => {
           this.emitter.emit("showLoader", false);
-          this.apikey = response.data.apiKey;
+          this.apikey = response.data.apiKey || null;
+          this.legacyKeyPersisted = !this.apikey && response.data.active !== false;
           this.credentials = this.normalizeCredentialResponse(response.data);
         })
         .catch((e) => {
@@ -1689,14 +1958,12 @@ export default {
       this.handleCredentialAction(event);
     },
     generateKey() {
-      return this.$showConfirm({
-        message:
-          this.language[this.config.currentLanguage].Apikey
-            .confirmGenerateMessage,
-        variant: "warning",
-      }).then((confirmed) => {
-        if (confirmed) this.generateAction();
-      });
+      this.legacyRotationError = "";
+      this.showLegacyRotationPanel = true;
+    },
+    cancelLegacyKeyRotation() {
+      this.legacyRotationError = "";
+      this.showLegacyRotationPanel = false;
     },
     prepareCredentialRotation(row) {
       const target = this.credentials.find((credential) => {
@@ -1873,22 +2140,36 @@ export default {
       return `${this.credentialEndpoint()}/${encodeURIComponent(id)}/revoke`;
     },
     generateAction() {
+      const expiresInDays =
+        this.legacyExpiryDays === "never"
+          ? null
+          : Number.parseInt(this.legacyExpiryDays, 10);
       apiClient
         .put(
           this.config.serviceBaseUrl + this.config.url.apikey,
-          {},
+          { expiresInDays },
           {
             headers: this.setHeaders(),
           },
         )
         .then((response) => {
           this.emitter.emit("showLoader", false);
-          this.apikey = response.data.apiKey;
+          this.apikey = response.data.apiKey || null;
+          this.legacyKeyPersisted = false;
+          this.credentials = this.normalizeCredentialResponse(response.data);
+          this.showLegacyRotationPanel = false;
+          this.legacyRotationError = "";
         })
         .catch((e) => {
           this.emitter.emit("showLoader", false);
           this.Logout(this, e);
           this.error = e;
+          const responseMessage =
+            e?.response?.data?.error?.message ?? e?.response?.data?.message;
+          this.legacyRotationError =
+            responseMessage ||
+            this.language[this.config.currentLanguage].Apikey
+              .rotationLegacyFailed;
         });
     },
     goGithub() {

@@ -48,11 +48,32 @@ describe("apikey component", () => {
                 cliEyebrow: "Idelium CLI",
                 credentialEyebrow: "Credential",
                 statusActive: "Active",
+                keyStoredTitle: "Key stored securely",
+                keyStoredHelp: "Rotate to reveal a new value.",
+                keyNotGenerated: "No API key has been generated yet.",
                 packageEyebrow: "Package",
                 cliTitle: "Idelium CLI",
                 cliInfo: "Install the CLI from PyPI.",
                 keyCopy: "Key copied",
                 confirmGenerateMessage: "Generate a new key?",
+                rotationEyebrow: "API key rotation",
+                rotationLegacyTitle: "Create a replacement API key",
+                rotationLegacyHelp: "Choose the key lifetime.",
+                expiryPolicy: "Expiration policy",
+                expiry30: "30 days",
+                expiry30Help: "Temporary automation.",
+                expiry60: "60 days",
+                expiry60Help: "Short delivery cycles.",
+                expiry90: "90 days",
+                expiry90Help: "Recommended default.",
+                expiry180: "180 days",
+                expiry180Help: "Extended access.",
+                expiry365: "365 days",
+                expiry365Help: "Maximum lifetime.",
+                expiryNever: "No expiration",
+                expiryNeverHelp: "Legacy compatibility.",
+                confirmRotation: "Create replacement key",
+                rotationLegacyFailed: "Replacement failed.",
                 tabsLabel: "API key sections",
                 tabOverview: "Overview",
                 tabOverviewDescription: "Current key.",
@@ -333,6 +354,183 @@ describe("apikey component", () => {
       "complete_secret",
     );
     expect(wrapper.text()).not.toContain("complete_secret");
+  });
+
+  it("renders creation and usage metadata returned for the legacy API key", async () => {
+    api.get.mockResolvedValue({
+      data: {
+        apiKey: "legacy-secret-value",
+        credentials: [
+          {
+            actor: "legacy",
+            createdAt: "2026-08-01T08:00:00.000Z",
+            id: "legacy-key",
+            keyPrefix: "legacy-secre",
+            lastUsedAt: "2026-08-07T09:30:00.000Z",
+            legacy: true,
+            name: "Legacy API key",
+            scopes: ["legacy"],
+            status: "legacy",
+            tenantId: "1",
+          },
+        ],
+      },
+    });
+
+    const wrapper = mountApikey();
+    await vi.waitFor(() => expect(wrapper.vm.credentialRows).toHaveLength(1));
+
+    expect(wrapper.vm.credentialRows[0]).toMatchObject({
+      createdAt: "2026-08-01",
+      lastUsedAt: "2026-08-07",
+      name: "Legacy API key",
+    });
+    expect(JSON.stringify(wrapper.vm.credentialRows)).not.toContain(
+      "legacy-secret-value",
+    );
+  });
+
+  it("shows a secure stored-state message after reload without a plaintext key", async () => {
+    api.get.mockResolvedValue({
+      data: { active: true, expiresAt: "2027-09-11T00:00:00.000Z" },
+    });
+
+    const wrapper = mountApikey();
+    await vi.waitFor(() => expect(wrapper.vm.legacyKeyPersisted).toBe(true));
+
+    expect(wrapper.text()).toContain("Key stored securely");
+    expect(wrapper.text()).toContain("Rotate to reveal a new value.");
+    expect(wrapper.find(".apikey-value").exists()).toBe(false);
+    expect(wrapper.findAll(".apikey-actions button")[0].element.disabled).toBe(
+      true,
+    );
+  });
+
+  it("rotates the legacy API key with a standard expiration policy", async () => {
+    api.get.mockResolvedValue({ data: { apiKey: "current-key" } });
+    api.put.mockResolvedValue({
+      data: {
+        apiKey: "replacement-key",
+        credentials: [
+          {
+            createdAt: "2026-08-07T10:00:00.000Z",
+            expiresAt: "2026-09-06T10:00:00.000Z",
+            id: "legacy-key",
+            keyPrefix: "replacement-",
+            lastUsedAt: null,
+            legacy: true,
+            name: "Legacy API key",
+            scopes: ["legacy"],
+            status: "legacy",
+            tenantId: "1",
+          },
+        ],
+      },
+    });
+    const wrapper = mountApikey();
+    await vi.waitFor(() => expect(wrapper.vm.apikey).toBe("current-key"));
+
+    wrapper.vm.generateKey();
+    await wrapper.vm.$nextTick();
+
+    expect(wrapper.find(".apikey-legacy-rotation").exists()).toBe(true);
+    expect(wrapper.findAll(".apikey-expiry-option")).toHaveLength(6);
+    expect(wrapper.vm.legacyExpiryDays).toBe("90");
+
+    wrapper.vm.legacyExpiryDays = "30";
+    await wrapper.vm.generateAction();
+
+    await vi.waitFor(() => expect(wrapper.vm.apikey).toBe("replacement-key"));
+    expect(api.put).toHaveBeenCalledWith(
+      "/api/apikey",
+      { expiresInDays: 30 },
+      { headers: {} },
+    );
+    expect(wrapper.vm.credentialRows[0].expiresAt).toBe("2026-09-06");
+    expect(wrapper.vm.credentialRows[0].lastUsedAt).toBe("Never used");
+    expect(wrapper.vm.showLegacyRotationPanel).toBe(false);
+  });
+
+  it("shows actionable backend diagnostics when legacy key rotation fails", async () => {
+    api.get.mockResolvedValue({ data: { apiKey: "current-key" } });
+    api.put.mockRejectedValue({
+      response: {
+        data: {
+          error: {
+            code: "LEGACY_API_KEY_SCHEMA_MISSING",
+            message:
+              "Legacy API key expiration requires the latest database migration.",
+          },
+        },
+      },
+    });
+    const wrapper = mountApikey();
+    await vi.waitFor(() => expect(wrapper.vm.apikey).toBe("current-key"));
+
+    wrapper.vm.generateKey();
+    await wrapper.vm.$nextTick();
+    wrapper.vm.generateAction();
+
+    expect(wrapper.vm.apikey).toBe("current-key");
+    await vi.waitFor(() =>
+      expect(wrapper.vm.legacyRotationError).toBe(
+        "Legacy API key expiration requires the latest database migration.",
+      ),
+    );
+    expect(wrapper.find(".apikey-legacy-rotation").text()).toContain(
+      "latest database migration",
+    );
+  });
+
+  it("renders compact icon-only credential actions with accessible tooltips", async () => {
+    api.get.mockResolvedValue({
+      data: {
+        credentials: [
+          {
+            fingerprint: "safe-fingerprint",
+            id: "cred-1",
+            name: "CI production",
+            scopes: ["run:execute"],
+            status: "active",
+            tenantId: "tenant-1",
+          },
+        ],
+      },
+    });
+
+    const wrapper = mountApikey();
+    await vi.waitFor(() => expect(wrapper.vm.credentialRows).toHaveLength(1));
+    await selectTab(wrapper, "credentials");
+
+    const inventory = wrapper.findComponent({ name: "EnterpriseDataTable" });
+    expect(inventory.props("density")).toBe("compact");
+    expect(inventory.props("actions")).toEqual([
+      expect.objectContaining({
+        icon: "sync",
+        label: "Rotate",
+        tooltip: "Rotate credential",
+      }),
+      expect.objectContaining({
+        icon: "trash",
+        label: "Revoke",
+        tooltip: "Revoke credential",
+      }),
+      expect.objectContaining({
+        icon: "history",
+        label: "Audit",
+        tooltip: "Open audit",
+      }),
+    ]);
+    expect(
+      inventory.props("actions").every((action) => Boolean(action.icon)),
+    ).toBe(true);
+
+    const createAction = wrapper.findComponent({ name: "IdButton" });
+    expect(createAction.props("iconOnly")).toBe(true);
+    expect(createAction.props("accessibleLabel")).toBe("Create credential");
+
+    await createAction.trigger("click");
+    expect(wrapper.vm.activeApikeyTab).toBe("create");
   });
 
   it("submits a named credential once and navigates to reveal-once state", async () => {
