@@ -525,8 +525,8 @@ export default {
 }
 
 .account-invitation-notice {
-  background: #145a72;
-  border: 1px solid #0d4052;
+  background: #172033 !important;
+  border: 1px solid #0b1020 !important;
   border-radius: 0.8rem;
   color: #ffffff !important;
   display: flex;
