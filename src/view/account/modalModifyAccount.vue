@@ -265,45 +265,43 @@
             {{ labelButtonAction }}
           </button>
         </div>
-        <div
-          v-if="showConfirmation"
-          class="account-confirmation"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="account-confirmation-title"
+      </div>
+    </div>
+  </div>
+  <div
+    v-if="showConfirmation"
+    class="account-confirmation"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="account-confirmation-title"
+  >
+    <div class="account-confirmation-card">
+      <h6 id="account-confirmation-title">
+        {{ language[config.currentLanguage].Accounts.confirmModifyTitle }}
+      </h6>
+      <p>
+        {{ language[config.currentLanguage].Accounts.confirmModifyMessage }}
+      </p>
+      <ul>
+        <li v-for="change in modificationChanges" :key="change">
+          {{ change }}
+        </li>
+      </ul>
+      <div class="account-confirmation-actions">
+        <button
+          type="button"
+          class="btn btn-secondary btn-sm"
+          @click="showConfirmation = false"
         >
-          <div class="account-confirmation-card">
-            <h6 id="account-confirmation-title">
-              {{ language[config.currentLanguage].Accounts.confirmModifyTitle }}
-            </h6>
-            <p>
-              {{
-                language[config.currentLanguage].Accounts.confirmModifyMessage
-              }}
-            </p>
-            <ul>
-              <li v-for="change in modificationChanges" :key="change">
-                {{ change }}
-              </li>
-            </ul>
-            <div class="account-confirmation-actions">
-              <button
-                type="button"
-                class="btn btn-secondary btn-sm"
-                @click="showConfirmation = false"
-              >
-                {{ language[config.currentLanguage].Accounts.btnCancel }}
-              </button>
-              <button
-                type="button"
-                class="btn btn-warning btn-sm"
-                @click="confirmSubmit"
-              >
-                {{ language[config.currentLanguage].Accounts.confirmModify }}
-              </button>
-            </div>
-          </div>
-        </div>
+          {{ language[config.currentLanguage].Accounts.btnCancel }}
+        </button>
+        <button
+          type="button"
+          class="btn btn-warning btn-sm"
+          @click="confirmSubmit"
+        >
+          {{ language[config.currentLanguage].Accounts.confirmModify }}
+        </button>
       </div>
     </div>
   </div>
