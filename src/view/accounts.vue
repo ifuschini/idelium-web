@@ -130,7 +130,10 @@
           <div><dt>{{ copy.invitationPreview.to }}</dt><dd>{{ invitationPreview.email }}</dd></div>
           <div><dt>{{ copy.invitationPreview.subject }}</dt><dd>{{ invitationPreview.subject }}</dd></div>
         </dl>
-        <div class="invitation-preview__body">{{ invitationPreview.body }}</div>
+        <div class="invitation-preview__body">
+          {{ invitationPreview.body }}
+          <a class="invitation-preview__link" :href="invitationPreview.link">{{ invitationPreview.link }}</a>
+        </div>
         <button type="button" class="btn btn-primary" v-on:click="closeInvitationPreview">{{ copy.invitationPreview.close }}</button>
       </section>
     </div>
@@ -858,9 +861,11 @@ export default {
           this.invitationPreview = {
             email: request.body.email,
             subject: this.copy.invitationPreview.subjectValue,
+            link: `${window.location.origin}/login`,
             body: this.copy.invitationPreview.body
               .replace("{name}", request.body.displayName)
-              .replace("{email}", request.body.email),
+              .replace("{email}", request.body.email)
+              .replace("{link}", `${window.location.origin}/login`),
           };
           return this.getAccounts();
         })
@@ -1085,6 +1090,14 @@ export default {
   background: #f1f5f9;
   color: #172033;
   line-height: 1.6;
+}
+
+.invitation-preview__link {
+  display: block;
+  margin-top: 0.75rem;
+  color: #0b5cad;
+  font-weight: 700;
+  overflow-wrap: anywhere;
 }
 
 .accounts-governance-filters select {

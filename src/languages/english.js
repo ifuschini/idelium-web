@@ -1754,7 +1754,7 @@ export default {
       to: "To",
       subject: "Subject",
       subjectValue: "Activate your Idelium account",
-      body: "Hello {name},\n\nYour Idelium account ({email}) is ready for activation. Follow the activation link in the invitation email to set your password.\n\nThis preview does not contain a password or activation token.",
+      body: "Hello {name},\n\nYour Idelium account ({email}) is ready for activation. Use the link below to continue.\n\nThis preview does not contain a password or activation token.",
       close: "Close",
     },
     invitationSafeFailure:
