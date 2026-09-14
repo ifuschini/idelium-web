@@ -64,16 +64,14 @@ export default {
 <style scoped>
 .enterprise-grid-state {
   align-items: center;
-  background:
-    radial-gradient(
-      circle at top left,
-      rgba(255, 107, 30, 0.12),
-      transparent 18rem
-    ),
-    rgba(255, 255, 255, 0.035);
-  border: 1px dashed rgba(255, 255, 255, 0.16);
-  border-radius: 1rem;
-  color: rgba(246, 247, 251, 0.72);
+  background: color-mix(
+    in srgb,
+    var(--id-color-primary) 7%,
+    var(--id-color-surface)
+  );
+  border: 1px dashed var(--id-color-border-strong);
+  border-radius: var(--id-radius-large, 1rem);
+  color: var(--id-color-text-muted);
   display: flex;
   gap: 1rem;
   margin: 1rem 0;
@@ -83,10 +81,15 @@ export default {
 
 .enterprise-grid-state__icon {
   align-items: center;
-  background: rgba(255, 107, 30, 0.16);
-  border: 1px solid rgba(255, 107, 30, 0.42);
-  border-radius: 0.9rem;
-  color: #ffb37a;
+  background: color-mix(
+    in srgb,
+    var(--id-color-primary) 14%,
+    var(--id-color-surface)
+  );
+  border: 1px solid
+    color-mix(in srgb, var(--id-color-primary) 55%, var(--id-color-border));
+  border-radius: var(--id-radius-medium, 0.75rem);
+  color: var(--id-color-primary-strong);
   display: inline-flex;
   flex: 0 0 auto;
   height: 3rem;
@@ -95,7 +98,7 @@ export default {
 }
 
 .enterprise-grid-state h3 {
-  color: #f6f7fb;
+  color: var(--id-color-text);
   font-size: 0.92rem;
   font-weight: 800;
   letter-spacing: 0.14em;
@@ -116,8 +119,16 @@ export default {
 
 .enterprise-grid-state--error .enterprise-grid-state__icon,
 .enterprise-grid-state--permission .enterprise-grid-state__icon {
-  background: rgba(220, 53, 69, 0.14);
-  border-color: rgba(220, 53, 69, 0.42);
-  color: #ff9aa6;
+  background: color-mix(
+    in srgb,
+    var(--id-color-danger) 14%,
+    var(--id-color-surface)
+  );
+  border-color: color-mix(
+    in srgb,
+    var(--id-color-danger) 55%,
+    var(--id-color-border)
+  );
+  color: var(--id-color-danger);
 }
 </style>

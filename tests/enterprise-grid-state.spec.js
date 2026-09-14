@@ -1,4 +1,6 @@
 import { shallowMount } from "@vue/test-utils";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import EnterpriseGridState from "@/components/shared/EnterpriseGridState.vue";
@@ -39,5 +41,18 @@ describe("enterprise grid state", () => {
     });
 
     expect(wrapper.classes()).toContain("enterprise-grid-state--error");
+  });
+
+  it("uses theme tokens so empty states remain readable in light mode", () => {
+    const source = readFileSync(
+      join(process.cwd(), "src/components/shared/EnterpriseGridState.vue"),
+      "utf8",
+    );
+
+    expect(source).toContain("var(--id-color-text)");
+    expect(source).toContain("var(--id-color-text-muted)");
+    expect(source).toContain("var(--id-color-border-strong)");
+    expect(source).not.toContain("rgba(255, 255, 255");
+    expect(source).not.toContain("color: #f6f7fb");
   });
 });
