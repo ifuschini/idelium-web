@@ -399,10 +399,11 @@ export default {
       if (this.name == "") this.checkName = false;
       else this.checkName = true;
       if (this.type == "modify") {
+        const passwordProvided = this.password.length > 0;
         if (
           this.checkName == false ||
-          (!this.forceActivate && this.checkPassword == false) ||
-          this.password != this.confirmPassword ||
+          (passwordProvided &&
+            (!this.checkPassword || this.password != this.confirmPassword)) ||
           (this.isProtectedAdminChange && !this.replacementAdminId)
         ) {
           this.disableButton = true;
