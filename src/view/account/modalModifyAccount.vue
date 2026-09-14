@@ -537,6 +537,11 @@ export default {
   padding: 0.85rem;
 }
 
+.modal-content .form-text {
+  color: #43566f !important;
+  opacity: 1 !important;
+}
+
 div.account-invitation-notice strong,
 div.account-invitation-notice span {
   color: #173b4d !important;
