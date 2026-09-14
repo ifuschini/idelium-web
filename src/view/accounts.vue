@@ -858,7 +858,11 @@ export default {
       const profileRequest = () =>
         apiClient.put(
           `${this.config.serviceBaseUrl}${this.config.url.accounts}/${data.id}`,
-          { name: data.name, password: data.password },
+          {
+            name: data.name,
+            password: data.password,
+            forceActivate: data.forceActivate === true,
+          },
           { headers: this.setHeaders() },
         );
       const roleChanged = account && String(account.role) !== String(data.role);

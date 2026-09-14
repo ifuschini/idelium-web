@@ -1751,6 +1751,9 @@ export default {
       "The invitation could not be submitted. Check the visible fields or contact an administrator.",
     modifyFormHelp:
       "This form updates only the editable account profile fields saved by Idelium.",
+    forceActivate: "Force activation",
+    forceActivateHelp:
+      "Use this only after verifying the user identity. It enables sign-in without changing the existing password.",
     placeholderReplacementAdmin: "Select a replacement administrator",
     placeholderEmail: "user@example.com",
     placeholderName: "Full name",

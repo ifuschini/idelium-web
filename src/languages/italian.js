@@ -1755,6 +1755,9 @@ export default {
       "Non è stato possibile inviare l'invito. Controlla i campi visibili o contatta un amministratore.",
     modifyFormHelp:
       "Questa form aggiorna solo i campi profilo account modificabili e salvati da Idelium.",
+    forceActivate: "Forza attivazione",
+    forceActivateHelp:
+      "Usa questa opzione solo dopo aver verificato l'identità dell'utente. Abilita l'accesso senza modificare la password esistente.",
     placeholderReplacementAdmin: "Seleziona un amministratore sostitutivo",
     placeholderEmail: "utente@example.com",
     placeholderName: "Nome completo",

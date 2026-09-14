@@ -120,6 +120,20 @@
                 {{ language[config.currentLanguage].Accounts.passwordHelp }}
               </div>
             </div>
+            <div class="form-check mb-3" v-if="isModifyType && isInvited">
+              <input
+                id="account-force-activate"
+                class="form-check-input"
+                type="checkbox"
+                v-model="forceActivate"
+              />
+              <label class="form-check-label" for="account-force-activate">
+                {{ language[config.currentLanguage].Accounts.forceActivate }}
+              </label>
+              <div class="form-text">
+                {{ language[config.currentLanguage].Accounts.forceActivateHelp }}
+              </div>
+            </div>
             <div class="mb-3" v-if="isModifyType">
               <label class="form-label" for="account-confirm-password">
                 {{ language[config.currentLanguage].Profile.confirmPassword }}
@@ -257,6 +271,7 @@ export default {
       name: "",
       password: "",
       confirmPassword: "",
+      forceActivate: false,
       checkPassword: false,
       checkName: false,
       selectedRole: null,
@@ -310,6 +325,9 @@ export default {
         !this.isAdministratorRole(this.selectedRoleDefinition)
       );
     },
+    isInvited() {
+      return this.accountStatus(this.dataAccount) === "invited";
+    },
     availableReplacementAdmins() {
       const tenantId = this.dataAccount.tenantId || this.dataAccount.idCostumer;
       return this.arrayAccounts.filter((account) => {
@@ -360,6 +378,9 @@ export default {
     selectedCostumer() {
       this.activateButton();
     },
+    forceActivate() {
+      this.activateButton();
+    },
   },
   methods: {
     activateButton() {
@@ -368,7 +389,7 @@ export default {
       if (this.type == "modify") {
         if (
           this.checkName == false ||
-          this.checkPassword == false ||
+          (!this.forceActivate && this.checkPassword == false) ||
           this.password != this.confirmPassword ||
           (this.isProtectedAdminChange && !this.replacementAdminId)
         ) {
@@ -400,6 +421,7 @@ export default {
       this.type = type;
       this.password = "";
       this.confirmPassword = "";
+      this.forceActivate = false;
       this.name = "";
       this.checkPassword = false;
       this.checkName = false;
@@ -448,6 +470,7 @@ export default {
       };
       if (this.type == "modify") {
         sendData.password = this.password;
+        sendData.forceActivate = this.forceActivate;
         sendData.role = this.selectedRole;
         sendData.replacementAdminId = this.replacementAdminId || null;
       }
