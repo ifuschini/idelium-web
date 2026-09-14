@@ -525,10 +525,10 @@ export default {
 }
 
 .account-invitation-notice {
-  background: #e8f7fb;
-  border: 1px solid #71d5e8;
+  background: #145a72;
+  border: 1px solid #0d4052;
   border-radius: 0.8rem;
-  color: #173b4d !important;
+  color: #ffffff !important;
   display: flex;
   flex-direction: column;
   font-size: 0.85rem;
@@ -544,7 +544,7 @@ export default {
 
 div.account-invitation-notice strong,
 div.account-invitation-notice span {
-  color: #173b4d !important;
+  color: #ffffff !important;
   opacity: 1 !important;
 }
 
