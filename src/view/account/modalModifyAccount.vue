@@ -516,6 +516,11 @@ export default {
 </script>
 
 <style scoped>
+.modal-dialog {
+  max-width: 900px;
+  width: calc(100% - 2rem);
+}
+
 .account-invitation-notice {
   background: rgba(13, 202, 240, 0.1);
   border: 1px solid rgba(13, 202, 240, 0.28);
@@ -526,5 +531,11 @@ export default {
   line-height: 1.55;
   margin-bottom: 1rem;
   padding: 0.85rem;
+}
+
+@media (max-width: 576px) {
+  .modal-dialog {
+    width: calc(100% - 1rem);
+  }
 }
 </style>
