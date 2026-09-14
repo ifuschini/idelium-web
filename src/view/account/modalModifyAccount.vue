@@ -528,13 +528,19 @@ export default {
   background: #e8f7fb;
   border: 1px solid #71d5e8;
   border-radius: 0.8rem;
-  color: #173b4d;
+  color: #173b4d !important;
   display: flex;
   flex-direction: column;
   font-size: 0.85rem;
   line-height: 1.55;
   margin-bottom: 1rem;
   padding: 0.85rem;
+}
+
+div.account-invitation-notice strong,
+div.account-invitation-notice span {
+  color: #173b4d !important;
+  opacity: 1 !important;
 }
 
 .account-invitation-notice strong {
