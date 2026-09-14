@@ -411,6 +411,11 @@ describe("apikey component", () => {
     expect(wrapper.findAll(".apikey-actions button")[0].element.disabled).toBe(
       true,
     );
+    expect(wrapper.vm.credentialRows[0]).toMatchObject({
+      id: "legacy-key",
+      name: "Legacy API key",
+      status: "active",
+    });
   });
 
   it("masks a legacy key loaded from the API while keeping export actions available", async () => {

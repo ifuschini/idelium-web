@@ -1888,7 +1888,22 @@ export default {
     },
     normalizeCredentialResponse(data) {
       if (Array.isArray(data?.credentials)) return data.credentials;
-      if (!data?.apiKey) return [];
+      if (!data?.apiKey && typeof data?.active !== "boolean") return [];
+      if (!data?.apiKey) {
+        return [
+          {
+            actor: "legacy",
+            expiresAt: data.expiresAt ?? null,
+            id: "legacy-key",
+            keyPrefix: data.keyPrefix ?? null,
+            lastUsedUnavailable: true,
+            legacy: true,
+            name: this.language[this.config.currentLanguage].Apikey.legacyName,
+            scopes: ["legacy"],
+            status: data.active ? "active" : "revoked",
+          },
+        ];
+      }
       return [
         {
           actor: "legacy",
