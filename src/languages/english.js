@@ -1748,6 +1748,15 @@ export default {
     invitationExpiryHelp:
       "Idelium sends an activation invitation. The administrator never enters the user's password, and invitation delivery feedback is intentionally generic.",
     invitationNoticeTitle: "Invitation workflow",
+    invitationPreview: {
+      title: "Invitation preview",
+      requested: "The invitation was requested. This is the message preview.",
+      to: "To",
+      subject: "Subject",
+      subjectValue: "Activate your Idelium account",
+      body: "Hello {name},\n\nYour Idelium account ({email}) is ready for activation. Follow the activation link in the invitation email to set your password.\n\nThis preview does not contain a password or activation token.",
+      close: "Close",
+    },
     invitationSafeFailure:
       "The invitation could not be submitted. Check the visible fields or contact an administrator.",
     modifyFormHelp:

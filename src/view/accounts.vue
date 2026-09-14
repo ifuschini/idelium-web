@@ -119,6 +119,21 @@
       :can-assign-roles="accountCapabilities.includes('account.role.assign')"
       v-on:updateData="updateData"
     />
+    <div v-if="invitationPreview" class="invitation-preview-backdrop" role="presentation">
+      <section class="invitation-preview" role="dialog" aria-modal="true" aria-labelledby="invitation-preview-title">
+        <div class="invitation-preview__header">
+          <h2 id="invitation-preview-title">{{ copy.invitationPreview.title }}</h2>
+          <button type="button" class="btn-close" :aria-label="copy.invitationPreview.close" v-on:click="closeInvitationPreview"></button>
+        </div>
+        <p class="invitation-preview__status">{{ copy.invitationPreview.requested }}</p>
+        <dl>
+          <div><dt>{{ copy.invitationPreview.to }}</dt><dd>{{ invitationPreview.email }}</dd></div>
+          <div><dt>{{ copy.invitationPreview.subject }}</dt><dd>{{ invitationPreview.subject }}</dd></div>
+        </dl>
+        <div class="invitation-preview__body">{{ invitationPreview.body }}</div>
+        <button type="button" class="btn btn-primary" v-on:click="closeInvitationPreview">{{ copy.invitationPreview.close }}</button>
+      </section>
+    </div>
   </EnterpriseListingPage>
 </template>
 
@@ -210,6 +225,7 @@ export default {
       },
       auditTarget: null,
       error: null,
+      invitationPreview: null,
       isSuperAdmin: false,
       loading: false,
       meta: {
@@ -838,7 +854,16 @@ export default {
         .post(this.accountInvitationEndpoint(), request.body, {
           headers: { ...this.setHeaders(), ...request.headers },
         })
-        .then(() => this.getAccounts())
+        .then(() => {
+          this.invitationPreview = {
+            email: request.body.email,
+            subject: this.copy.invitationPreview.subjectValue,
+            body: this.copy.invitationPreview.body
+              .replace("{name}", request.body.displayName)
+              .replace("{email}", request.body.email),
+          };
+          return this.getAccounts();
+        })
         .catch((error) => {
           this.error = error;
           this.Logout(this, error);
@@ -850,6 +875,9 @@ export default {
         (this.config.url.accountInvitations ||
           `${this.config.url.accounts}/invitations`)
       );
+    },
+    closeInvitationPreview() {
+      this.invitationPreview = null;
     },
     updateAccount(data) {
       const account = this.arrayAccounts.find(
@@ -991,6 +1019,72 @@ export default {
   color: var(--id-color-text);
   min-height: var(--id-control-min-size);
   padding: 0 var(--id-space-3);
+}
+
+.invitation-preview-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1080;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgb(15 23 42 / 55%);
+}
+
+.invitation-preview {
+  width: min(100%, 38rem);
+  padding: 1.5rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 1rem;
+  background: #fff;
+  color: #172033;
+  box-shadow: 0 1.5rem 4rem rgb(15 23 42 / 25%);
+}
+
+.invitation-preview__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.invitation-preview__header h2 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.invitation-preview__status {
+  color: #17623f;
+  font-weight: 700;
+}
+
+.invitation-preview dl {
+  margin: 1rem 0;
+}
+
+.invitation-preview dl div {
+  margin-top: 0.75rem;
+}
+
+.invitation-preview dt {
+  color: #52627a;
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.invitation-preview dd {
+  margin: 0.2rem 0 0;
+}
+
+.invitation-preview__body {
+  white-space: pre-line;
+  margin: 1rem 0 1.25rem;
+  padding: 1rem;
+  border-radius: 0.75rem;
+  background: #f1f5f9;
+  color: #172033;
+  line-height: 1.6;
 }
 
 .accounts-governance-filters select {

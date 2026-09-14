@@ -1752,6 +1752,15 @@ export default {
     invitationExpiryHelp:
       "Idelium invia un invito di attivazione. L'amministratore non inserisce mai la password dell'utente e il feedback di consegna è volutamente generico.",
     invitationNoticeTitle: "Flusso di invito",
+    invitationPreview: {
+      title: "Anteprima invito",
+      requested: "Invito richiesto. Questa è l'anteprima del messaggio.",
+      to: "Destinatario",
+      subject: "Oggetto",
+      subjectValue: "Attiva il tuo account Idelium",
+      body: "Ciao {name},\n\nIl tuo account Idelium ({email}) è pronto per l'attivazione. Segui il link nell'email di invito per impostare la password.\n\nQuesta anteprima non contiene password o token di attivazione.",
+      close: "Chiudi",
+    },
     invitationSafeFailure:
       "Non è stato possibile inviare l'invito. Controlla i campi visibili o contatta un amministratore.",
     modifyFormHelp:
