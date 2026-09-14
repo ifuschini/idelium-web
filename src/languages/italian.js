@@ -1751,6 +1751,7 @@ export default {
       "Invita l'utente via email e assegna il ruolo che riceverà dopo l'attivazione.",
     invitationExpiryHelp:
       "Idelium invia un invito di attivazione. L'amministratore non inserisce mai la password dell'utente e il feedback di consegna è volutamente generico.",
+    invitationNoticeTitle: "Flusso di invito",
     invitationSafeFailure:
       "Non è stato possibile inviare l'invito. Controlla i campi visibili o contatta un amministratore.",
     modifyFormHelp:

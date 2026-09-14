@@ -1747,6 +1747,7 @@ export default {
       "Invite the user by email and assign the role they will receive after activation.",
     invitationExpiryHelp:
       "Idelium sends an activation invitation. The administrator never enters the user's password, and invitation delivery feedback is intentionally generic.",
+    invitationNoticeTitle: "Invitation workflow",
     invitationSafeFailure:
       "The invitation could not be submitted. Check the visible fields or contact an administrator.",
     modifyFormHelp:

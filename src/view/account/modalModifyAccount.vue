@@ -98,9 +98,12 @@
               </div>
             </div>
             <div class="account-invitation-notice" v-if="!isModifyType">
-              {{
-                language[config.currentLanguage].Accounts.invitationExpiryHelp
-              }}
+              <strong>
+                {{ language[config.currentLanguage].Accounts.invitationNoticeTitle }}
+              </strong>
+              <span>
+                {{ language[config.currentLanguage].Accounts.invitationExpiryHelp }}
+              </span>
             </div>
             <div class="mb-3" v-if="isModifyType">
               <label class="form-label" for="account-password">
@@ -522,15 +525,21 @@ export default {
 }
 
 .account-invitation-notice {
-  background: rgba(13, 202, 240, 0.1);
-  border: 1px solid rgba(13, 202, 240, 0.28);
+  background: #e8f7fb;
+  border: 1px solid #71d5e8;
   border-radius: 0.8rem;
-  color: rgba(244, 244, 245, 0.82);
+  color: #173b4d;
+  display: flex;
+  flex-direction: column;
   font-size: 0.85rem;
-  font-weight: 700;
   line-height: 1.55;
   margin-bottom: 1rem;
   padding: 0.85rem;
+}
+
+.account-invitation-notice strong {
+  font-weight: 800;
+  margin-bottom: 0.2rem;
 }
 
 @media (max-width: 576px) {
