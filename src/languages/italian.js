@@ -1494,6 +1494,10 @@ export default {
     screenshots: "Screenshots",
   },
   Apikey: {
+    pageTitle: "Chiavi API",
+    pageDescription:
+      "Gestisci credenziali nominali, accesso CLI legacy, permessi e azioni del ciclo di vita.",
+    createApiKey: "Crea chiave API",
     btnGenerateKey: "Genera nuova chiave",
     placeholderKey: "Api Key",
     info: "La chiave da usare per idelium-cl, oppure scarica il file rinominalo .idelium e posizionalo nella tua home directory",
@@ -1526,6 +1530,7 @@ export default {
     tabOverview: "Panoramica",
     tabOverviewDescription: "Chiave legacy corrente ed export config.",
     tabCli: "Uso CLI",
+    tabCliSetup: "Configurazione CLI",
     tabCliDescription: "Comandi di installazione e snippet sicuri.",
     tabCredentials: "Credenziali",
     tabCredentialsDescription: "Inventario, filtri e azioni lifecycle.",
@@ -1539,6 +1544,9 @@ export default {
     cliEyebrow: "Idelium CLI",
     credentialEyebrow: "Credenziale",
     statusActive: "Attiva",
+    legacyMaskedValue: "Chiave CLI legacy mascherata",
+    legacyCliKeyTitle: "Chiave CLI legacy",
+    legacyLoading: "Caricamento stato della chiave legacy…",
     keyStoredTitle: "Chiave salvata in modo sicuro",
     keyStoredHelp:
       "La chiave completa non viene restituita dopo il reload. Ruota la chiave per visualizzare un nuovo valore.",
@@ -1597,6 +1605,10 @@ export default {
     noResultsTitle: "Nessuna credenziale trovata",
     noResultsDescription:
       "Cancella i filtri o modifica stato, scope, owner o scadenza.",
+    errorTitle: "Impossibile caricare le credenziali",
+    errorDescription:
+      "Riprova o contatta un amministratore se il problema persiste.",
+    retry: "Riprova",
     colName: "Nome",
     colFingerprint: "Prefisso / fingerprint",
     colScopes: "Scope",

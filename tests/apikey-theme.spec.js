@@ -14,7 +14,7 @@ describe("API key theme contract", () => {
     expect(source).toContain("var(--id-color-text)");
     expect(source).toContain("var(--id-color-text-muted)");
     expect(source).toContain("var(--id-color-border)");
-    expect(source).toContain("var(--id-shadow-raised)");
+    expect(source).not.toContain("box-shadow: 0 1rem 2.6rem");
     expect(source).not.toContain("rgba(35, 38, 50");
     expect(source).not.toContain("rgba(12, 14, 22");
     expect(source).not.toContain("color: #ffffff");

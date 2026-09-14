@@ -1,21 +1,27 @@
 <template>
   <div class="apikey-page">
-    <section class="apikey-hero">
-      <div class="apikey-hero-icon" aria-hidden="true">
-        <font-awesome-icon icon="key" />
-      </div>
+    <header class="apikey-page-header">
       <div>
         <p class="apikey-eyebrow">
           {{ language[config.currentLanguage].Apikey.cliEyebrow }}
         </p>
         <h1 class="apikey-title">
-          {{ language[config.currentLanguage].Apikey.title }}
+          {{ language[config.currentLanguage].Apikey.pageTitle }}
         </h1>
         <p class="apikey-subtitle">
-          {{ language[config.currentLanguage].Apikey.info }}
+          {{ language[config.currentLanguage].Apikey.pageDescription }}
         </p>
       </div>
-    </section>
+      <button
+        v-if="canCreateCredential"
+        type="button"
+        class="btn btn-primary apikey-primary-action"
+        v-on:click="openCreatePanel()"
+      >
+        <font-awesome-icon icon="plus" aria-hidden="true" />
+        {{ language[config.currentLanguage].Apikey.createApiKey }}
+      </button>
+    </header>
 
     <nav
       class="apikey-tabs"
@@ -39,12 +45,12 @@
     </nav>
 
     <section
-      v-if="activeApikeyTab === 'overview' || activeApikeyTab === 'cli'"
+      v-if="activeApikeyTab === 'credentials' || activeApikeyTab === 'cli'"
       class="apikey-grid apikey-grid--single"
       role="tabpanel"
     >
       <article
-        v-if="activeApikeyTab === 'overview'"
+        v-if="activeApikeyTab === 'credentials'"
         class="apikey-card apikey-card-main"
       >
         <div class="apikey-card-header">
@@ -53,10 +59,10 @@
               {{ language[config.currentLanguage].Apikey.credentialEyebrow }}
             </p>
             <h2 class="apikey-card-title">
-              {{ language[config.currentLanguage].Apikey.title }}
+              {{ language[config.currentLanguage].Apikey.legacyCliKeyTitle }}
             </h2>
           </div>
-          <span class="apikey-status">
+          <span v-if="legacyKeyActive === true" class="apikey-status">
             {{ language[config.currentLanguage].Apikey.statusActive }}
           </span>
         </div>
@@ -66,12 +72,34 @@
         </div>
 
         <div class="apikey-value-panel">
-          <code v-if="apikey" class="apikey-value">{{ apikey }}</code>
-          <div v-else-if="legacyKeyPersisted" class="apikey-stored-state" role="status">
+          <span
+            v-if="legacyKeyLoading"
+            class="apikey-empty-state"
+            role="status"
+          >
+            {{ language[config.currentLanguage].Apikey.legacyLoading }}
+          </span>
+          <code
+            v-else-if="apikey"
+            class="apikey-value"
+            :aria-label="
+              language[config.currentLanguage].Apikey.legacyMaskedValue
+            "
+            >{{ legacyKeyLoadedFromServer ? maskApiKey(apikey) : apikey }}</code
+          >
+          <div
+            v-else-if="legacyKeyPersisted"
+            class="apikey-stored-state"
+            role="status"
+          >
             <font-awesome-icon icon="key" aria-hidden="true" />
             <div>
-              <strong>{{ language[config.currentLanguage].Apikey.keyStoredTitle }}</strong>
-              <span>{{ language[config.currentLanguage].Apikey.keyStoredHelp }}</span>
+              <strong>{{
+                language[config.currentLanguage].Apikey.keyStoredTitle
+              }}</strong>
+              <span>{{
+                language[config.currentLanguage].Apikey.keyStoredHelp
+              }}</span>
             </div>
           </div>
           <span v-else class="apikey-empty-state">
@@ -277,7 +305,7 @@
             language[config.currentLanguage].Apikey.createTooltip
           "
           :tooltip="language[config.currentLanguage].Apikey.createTooltip"
-          v-on:click="selectApiKeyTab('create')"
+          v-on:click="openCreatePanel()"
         >
           <template #icon>
             <font-awesome-icon
@@ -298,11 +326,15 @@
         :copy="credentialTableCopy"
         density="compact"
         :has-active-filters="hasCredentialFilters"
+        :loading="legacyKeyLoading"
         :local-limit="100"
         :rows="credentialRows"
+        :error="showError ? error : null"
         v-on:action="handleCredentialAction"
         v-on:clear-filters="clearCredentialFilters"
         v-on:confirm-action="confirmCredentialAction"
+        v-on:create="openCreatePanel"
+        v-on:retry="getApiKey"
       >
         <template #toolbar>
           <div class="apikey-inventory-toolbar">
@@ -372,13 +404,72 @@
           </div>
         </template>
       </EnterpriseDataTable>
+      <div
+        v-if="credentialRows.length > 0"
+        class="apikey-mobile-credentials"
+        :aria-label="language[config.currentLanguage].Apikey.inventoryTitle"
+      >
+        <article
+          v-for="credential in credentialRows"
+          v-bind:key="credential.id"
+          class="apikey-mobile-credential"
+        >
+          <div class="apikey-mobile-credential-header">
+            <div>
+              <strong>{{ credential.name }}</strong>
+              <small>{{ credential.fingerprint }}</small>
+            </div>
+            <span class="apikey-status-badge">{{ credential.status }}</span>
+          </div>
+          <dl class="apikey-mobile-credential-meta">
+            <div>
+              <dt>{{ language[config.currentLanguage].Apikey.colScopes }}</dt>
+              <dd>{{ credential.scopes }}</dd>
+            </div>
+            <div>
+              <dt>{{ language[config.currentLanguage].Apikey.colExpiry }}</dt>
+              <dd>{{ credential.expiresAt }}</dd>
+            </div>
+            <div v-if="credential.actor && credential.actor !== 'unknown'">
+              <dt>{{ language[config.currentLanguage].Apikey.colOwner }}</dt>
+              <dd>{{ credential.actor }}</dd>
+            </div>
+            <div v-if="credential.lastUsedAt && credential.lastUsedAt !== '—'">
+              <dt>{{ language[config.currentLanguage].Apikey.colLastUsed }}</dt>
+              <dd>{{ credential.lastUsedAt }}</dd>
+            </div>
+          </dl>
+          <div class="apikey-mobile-credential-actions">
+            <button
+              v-if="credentialActions.some((action) => action.id === 'rotate')"
+              type="button"
+              class="btn btn-outline-secondary"
+              v-on:click="
+                handleCredentialAction({ action: 'rotate', row: credential })
+              "
+            >
+              {{ language[config.currentLanguage].Apikey.actions.rotate }}
+            </button>
+            <button
+              v-if="credentialActions.some((action) => action.id === 'revoke')"
+              type="button"
+              class="btn btn-outline-danger"
+              v-on:click="
+                confirmCredentialAction({ action: 'revoke', row: credential })
+              "
+            >
+              {{ language[config.currentLanguage].Apikey.actions.revoke }}
+            </button>
+          </div>
+        </article>
+      </div>
       <p class="apikey-security-note">
         {{ language[config.currentLanguage].Apikey.revealOnceNotice }}
       </p>
     </section>
 
     <section
-      v-if="activeApikeyTab === 'operations' && rotationTarget"
+      v-if="activeApikeyTab === 'credentials' && rotationTarget"
       class="apikey-card apikey-rotation-card"
       role="tabpanel"
     >
@@ -454,7 +545,7 @@
     </section>
 
     <section
-      v-if="activeApikeyTab === 'operations' && revocationTarget"
+      v-if="activeApikeyTab === 'credentials' && revocationTarget"
       class="apikey-card apikey-rotation-card"
       role="tabpanel"
     >
@@ -557,40 +648,30 @@
     </section>
 
     <section
-      v-if="
-        activeApikeyTab === 'operations' && !rotationTarget && !revocationTarget
-      "
-      class="apikey-card apikey-operations-empty-card"
-      role="tabpanel"
-    >
-      <p class="apikey-eyebrow">
-        {{ language[config.currentLanguage].Apikey.tabOperations }}
-      </p>
-      <h2 class="apikey-card-title">
-        {{ language[config.currentLanguage].Apikey.operationsEmptyTitle }}
-      </h2>
-      <p class="apikey-cli-copy">
-        {{ language[config.currentLanguage].Apikey.operationsEmptyDescription }}
-      </p>
-    </section>
-
-    <section
-      v-if="activeApikeyTab === 'create'"
+      v-if="activeApikeyTab === 'credentials' && showCreateCredentialPanel"
       class="apikey-card apikey-create-card"
       role="tabpanel"
+      aria-labelledby="create-api-key-title"
     >
       <div class="apikey-card-header">
         <div>
           <p class="apikey-eyebrow">
             {{ language[config.currentLanguage].Apikey.createCredentialTitle }}
           </p>
-          <h2 class="apikey-card-title">
+          <h2 id="create-api-key-title" class="apikey-card-title">
             {{ language[config.currentLanguage].Apikey.createCredentialTitle }}
           </h2>
           <p class="apikey-cli-copy">
             {{ language[config.currentLanguage].Apikey.createCredentialHelp }}
           </p>
         </div>
+        <button
+          type="button"
+          class="btn btn-outline-secondary apikey-secondary-action"
+          v-on:click="cancelCreatePanel()"
+        >
+          {{ language[config.currentLanguage].Apikey.actions.cancel }}
+        </button>
       </div>
       <form class="apikey-create-form" v-on:submit.prevent="createCredential()">
         <label>
@@ -726,44 +807,17 @@
   width: 100%;
 }
 
-.apikey-hero {
-  align-items: center;
-  background:
-    radial-gradient(
-      circle at 0% 0%,
-      color-mix(in srgb, var(--id-color-primary) 20%, transparent),
-      transparent 18rem
-    ),
-    linear-gradient(
-      135deg,
-      var(--id-color-surface),
-      var(--id-color-surface-raised)
-    );
-  border: 1px solid var(--id-color-border);
-  border-radius: 1.1rem;
-  box-shadow: var(--id-shadow-raised);
+.apikey-page-header {
+  align-items: flex-end;
+  border-bottom: 1px solid var(--id-color-border);
   display: flex;
-  gap: 1rem;
-  padding: 1.5rem;
+  gap: 1.5rem;
+  justify-content: space-between;
+  padding: 0.25rem 0 1.25rem;
 }
 
-.apikey-hero-icon {
-  align-items: center;
-  background: linear-gradient(
-    135deg,
-    var(--id-color-primary),
-    var(--id-color-primary-strong)
-  );
-  border-radius: 1.2rem;
-  box-shadow: 0 1rem 2.6rem
-    color-mix(in srgb, var(--id-color-primary) 22%, transparent);
-  color: var(--id-color-on-primary);
-  display: inline-flex;
-  flex: 0 0 4.75rem;
-  font-size: 2.25rem;
-  height: 4.75rem;
-  justify-content: center;
-  width: 4.75rem;
+.apikey-page-header .apikey-primary-action {
+  flex: 0 0 auto;
 }
 
 .apikey-eyebrow {
@@ -802,18 +856,12 @@
 }
 
 .apikey-tabs {
-  background:
-    linear-gradient(
-      135deg,
-      color-mix(in srgb, var(--id-color-primary) 9%, transparent),
-      transparent
-    ),
-    var(--id-color-surface);
+  background: var(--id-color-surface);
   border: 1px solid var(--id-color-border);
   border-radius: 1.1rem;
   display: grid;
   gap: 0.65rem;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   padding: 0.7rem;
 }
 
@@ -861,11 +909,7 @@
 }
 
 .apikey-tab--active {
-  background: linear-gradient(
-    135deg,
-    var(--id-color-primary),
-    var(--id-color-primary-strong)
-  );
+  background: var(--id-color-primary);
   border-color: var(--id-color-primary-strong);
   box-shadow: 0 0.9rem 2.3rem
     color-mix(in srgb, var(--id-color-primary) 24%, transparent);
@@ -877,18 +921,66 @@
 }
 
 .apikey-card {
-  background:
-    linear-gradient(
-      180deg,
-      color-mix(in srgb, var(--id-color-text) 3%, transparent),
-      transparent
-    ),
-    var(--id-color-surface);
+  background: var(--id-color-surface);
   border: 1px solid var(--id-color-border);
   border-radius: 1.1rem;
-  box-shadow: var(--id-shadow-raised);
+  box-shadow: none;
   min-width: 0;
   padding: 1.25rem;
+}
+
+.apikey-mobile-credentials {
+  display: none;
+}
+
+.apikey-mobile-credential {
+  background: var(--id-color-surface-raised);
+  border: 1px solid var(--id-color-border);
+  border-radius: 0.85rem;
+  display: grid;
+  gap: 0.9rem;
+  padding: 1rem;
+}
+
+.apikey-mobile-credential-header,
+.apikey-mobile-credential-actions {
+  align-items: center;
+  display: flex;
+  gap: 0.75rem;
+  justify-content: space-between;
+}
+
+.apikey-mobile-credential-header strong,
+.apikey-mobile-credential-header small {
+  display: block;
+}
+
+.apikey-mobile-credential-header small,
+.apikey-mobile-credential-meta dt {
+  color: var(--id-color-text-muted);
+  font-size: 0.75rem;
+}
+
+.apikey-status-badge {
+  background: color-mix(in srgb, var(--id-color-primary) 14%, transparent);
+  border-radius: 999px;
+  color: var(--id-color-text);
+  font-size: 0.72rem;
+  font-weight: 750;
+  padding: 0.25rem 0.55rem;
+}
+
+.apikey-mobile-credential-meta {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 0;
+}
+
+.apikey-mobile-credential-meta dd {
+  color: var(--id-color-text);
+  margin: 0.2rem 0 0;
+  overflow-wrap: anywhere;
 }
 
 .apikey-card-header {
@@ -1189,7 +1281,6 @@
 }
 
 .apikey-create-card,
-.apikey-operations-empty-card,
 .apikey-create-form {
   display: grid;
   gap: 1rem;
@@ -1364,9 +1455,13 @@
 }
 
 @media only screen and (max-width: 600px) {
-  .apikey-hero {
+  .apikey-page-header {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .apikey-page-header .apikey-primary-action {
+    width: 100%;
   }
 
   .apikey-primary-action {
@@ -1388,6 +1483,15 @@
 
   .apikey-tabs {
     grid-template-columns: 1fr;
+  }
+
+  .apikey-inventory-card > .enterprise-data-table {
+    display: none;
+  }
+
+  .apikey-mobile-credentials {
+    display: grid;
+    gap: 0.75rem;
   }
 
   .apikey-expiry-options {
@@ -1423,7 +1527,7 @@ export default {
   components: { EnterpriseDataTable, IdButton },
   data() {
     return {
-      activeApikeyTab: "overview",
+      activeApikeyTab: "credentials",
       status: "not_accepted",
       error: null,
       legacyExpiryDays: "90",
@@ -1431,6 +1535,9 @@ export default {
       showError: false,
       apikey: null,
       legacyKeyPersisted: false,
+      legacyKeyActive: null,
+      legacyKeyLoadedFromServer: false,
+      legacyKeyLoading: true,
       credentials: [],
       credentialCapabilities: [
         "credential.create",
@@ -1462,6 +1569,7 @@ export default {
       rotationPolicy: "overlap-24h",
       rotationTarget: null,
       showLegacyRotationPanel: false,
+      showCreateCredentialPanel: false,
       credentialStatusOptions: [
         "active",
         "expiring",
@@ -1501,29 +1609,14 @@ export default {
       const copy = this.language[this.config.currentLanguage].Apikey;
       return [
         {
-          description: copy.tabOverviewDescription,
-          id: "overview",
-          label: copy.tabOverview,
-        },
-        {
-          description: copy.tabCliDescription,
-          id: "cli",
-          label: copy.tabCli,
-        },
-        {
           description: copy.tabCredentialsDescription,
           id: "credentials",
           label: copy.tabCredentials,
         },
         {
-          description: copy.tabCreateDescription,
-          id: "create",
-          label: copy.tabCreate,
-        },
-        {
-          description: copy.tabOperationsDescription,
-          id: "operations",
-          label: copy.tabOperations,
+          description: copy.tabCliDescription,
+          id: "cli",
+          label: copy.tabCliSetup,
         },
       ];
     },
@@ -1616,6 +1709,7 @@ export default {
       return {
         actions: copy.actionsLabel,
         clearFilters: copy.clearFilters,
+        create: copy.createApiKey,
         moreActions: copy.moreActions,
         resultCount: copy.resultCount,
         scrollRegion: copy.inventoryScrollRegion,
@@ -1627,7 +1721,9 @@ export default {
             title: copy.noResultsTitle,
             description: copy.noResultsDescription,
           },
+          error: { title: copy.errorTitle, description: copy.errorDescription },
         },
+        retry: copy.retry,
       };
     },
     hasCredentialFilters() {
@@ -1698,12 +1794,14 @@ export default {
   },
   methods: {
     normalizedApiKeyTab(tab) {
-      return this.apikeyTabs.some((entry) => entry.id === tab)
-        ? tab
-        : "overview";
+      return tab === "cli" ? "cli" : "credentials";
     },
     syncApiKeyTabFromRoute(route) {
-      this.activeApikeyTab = this.normalizedApiKeyTab(route?.params?.tab);
+      const requestedTab = route?.params?.tab;
+      this.activeApikeyTab = this.normalizedApiKeyTab(requestedTab);
+      this.showCreateCredentialPanel = ["create", "operations"].includes(
+        requestedTab,
+      );
     },
     isApiKeyTabOnlyNavigation(to, from) {
       if (!to || !from || to.name !== "apikey" || from.name !== "apikey") {
@@ -1721,6 +1819,8 @@ export default {
     },
     selectApiKeyTab(tab) {
       const normalizedTab = this.normalizedApiKeyTab(tab);
+      if (tab === "create") this.showCreateCredentialPanel = true;
+      if (tab === "operations") this.showCreateCredentialPanel = false;
       this.activeApikeyTab = normalizedTab;
       if (!this.$router?.push) return;
       const targetParams = { ...(this.$route?.params ?? {}) };
@@ -1732,14 +1832,28 @@ export default {
         query: this.$route?.query ?? {},
       });
     },
+    openCreatePanel() {
+      this.rotationTarget = null;
+      this.revocationTarget = null;
+      this.credentialCreateErrors = [];
+      this.showCreateCredentialPanel = true;
+      this.selectApiKeyTab("credentials");
+    },
+    cancelCreatePanel() {
+      this.showCreateCredentialPanel = false;
+      this.credentialCreateErrors = [];
+    },
     makeToast(text) {
       this.$wkToast(text);
     },
     copyClipboard(text) {
+      if (!text) return;
       copy(text);
       this.makeToast(this.language[this.config.currentLanguage].Apikey.keyCopy);
     },
     getApiKey() {
+      this.legacyKeyLoading = true;
+      this.legacyKeyLoadedFromServer = false;
       this.emitter.emit("showLoader", true);
       apiClient
         .get(this.config.serviceBaseUrl + this.config.url.apikey, {
@@ -1747,15 +1861,30 @@ export default {
         })
         .then((response) => {
           this.emitter.emit("showLoader", false);
+          this.legacyKeyLoading = false;
+          this.showError = false;
           this.apikey = response.data.apiKey || null;
-          this.legacyKeyPersisted = !this.apikey && response.data.active !== false;
+          this.legacyKeyActive =
+            typeof response.data.active === "boolean"
+              ? response.data.active
+              : null;
+          this.legacyKeyLoadedFromServer = Boolean(this.apikey);
+          this.legacyKeyPersisted =
+            !this.apikey && response.data.active !== false;
           this.credentials = this.normalizeCredentialResponse(response.data);
         })
         .catch((e) => {
           this.emitter.emit("showLoader", false);
+          this.legacyKeyLoading = false;
           this.Logout(this, e);
           this.error = e;
+          this.showError = true;
         });
+    },
+    maskApiKey(value) {
+      const text = String(value ?? "");
+      if (text.length <= 8) return "••••••••";
+      return `${text.slice(0, 4)}${"•".repeat(Math.min(text.length - 8, 24))}${text.slice(-4)}`;
     },
     normalizeCredentialResponse(data) {
       if (Array.isArray(data?.credentials)) return data.credentials;
@@ -1827,7 +1956,8 @@ export default {
       this.revealAcknowledged = false;
       this.revealFeedback =
         this.language[this.config.currentLanguage].Apikey.revealOnceReady;
-      this.selectApiKeyTab("create");
+      this.showCreateCredentialPanel = true;
+      this.selectApiKeyTab("credentials");
       this.revealTimeoutId = window.setTimeout(
         () => {
           this.clearRevealOnceSecret("timeout");
@@ -1987,7 +2117,8 @@ export default {
         : null;
       this.rotationPolicy = "overlap-24h";
       this.rotationErrors = [];
-      this.selectApiKeyTab("operations");
+      this.showCreateCredentialPanel = false;
+      this.selectApiKeyTab("credentials");
     },
     cancelCredentialRotation() {
       this.rotationTarget = null;
@@ -2004,7 +2135,8 @@ export default {
         reason: "",
       };
       this.revocationErrors = [];
-      this.selectApiKeyTab("operations");
+      this.showCreateCredentialPanel = false;
+      this.selectApiKeyTab("credentials");
     },
     cancelCredentialRevocation() {
       this.revocationTarget = null;
@@ -2155,6 +2287,11 @@ export default {
         .then((response) => {
           this.emitter.emit("showLoader", false);
           this.apikey = response.data.apiKey || null;
+          this.legacyKeyLoadedFromServer = false;
+          this.legacyKeyActive =
+            typeof response.data.active === "boolean"
+              ? response.data.active
+              : true;
           this.legacyKeyPersisted = false;
           this.credentials = this.normalizeCredentialResponse(response.data);
           this.showLegacyRotationPanel = false;

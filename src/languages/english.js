@@ -1496,6 +1496,10 @@ export default {
     screenshots: "Screenshots",
   },
   Apikey: {
+    pageTitle: "API keys",
+    pageDescription:
+      "Manage named credentials, legacy CLI access, permissions, and lifecycle actions.",
+    createApiKey: "Create API key",
     btnGenerateKey: "Generate new Key",
     placeholderKey: "Api Key",
     info: "The key to use for idelium-cl or download the file rename it .idelium and place it in your home directory",
@@ -1528,6 +1532,7 @@ export default {
     tabOverview: "Overview",
     tabOverviewDescription: "Current legacy key and config export.",
     tabCli: "CLI usage",
+    tabCliSetup: "CLI setup",
     tabCliDescription: "Install commands and secure snippets.",
     tabCredentials: "Credentials",
     tabCredentialsDescription: "Inventory, filters, and lifecycle actions.",
@@ -1541,6 +1546,9 @@ export default {
     cliEyebrow: "Idelium CLI",
     credentialEyebrow: "Credential",
     statusActive: "Active",
+    legacyMaskedValue: "Masked legacy CLI key",
+    legacyCliKeyTitle: "Legacy CLI key",
+    legacyLoading: "Loading legacy key status…",
     packageEyebrow: "Package",
     cliTitle: "Idelium CLI",
     cliInfo:
@@ -1594,6 +1602,10 @@ export default {
     noResultsTitle: "No matching credentials",
     noResultsDescription:
       "Clear filters or adjust status, scope, owner, or expiry.",
+    errorTitle: "Credentials could not be loaded",
+    errorDescription:
+      "Try again or contact an administrator if the problem persists.",
+    retry: "Try again",
     colName: "Name",
     colFingerprint: "Prefix / fingerprint",
     colScopes: "Scopes",

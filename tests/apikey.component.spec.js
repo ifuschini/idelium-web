@@ -39,6 +39,9 @@ describe("apikey component", () => {
                 refresh: "Refresh",
               },
               Apikey: {
+                pageTitle: "API keys",
+                pageDescription: "Manage credentials.",
+                createApiKey: "Create API key",
                 title: "Your Idelium Key",
                 info: "Use this key with idelium-cli.",
                 btnGenerateKey: "Generate new key",
@@ -48,6 +51,9 @@ describe("apikey component", () => {
                 cliEyebrow: "Idelium CLI",
                 credentialEyebrow: "Credential",
                 statusActive: "Active",
+                legacyMaskedValue: "Masked legacy CLI key",
+                legacyCliKeyTitle: "Legacy CLI key",
+                legacyLoading: "Loading legacy key status…",
                 keyStoredTitle: "Key stored securely",
                 keyStoredHelp: "Rotate to reveal a new value.",
                 keyNotGenerated: "No API key has been generated yet.",
@@ -78,6 +84,7 @@ describe("apikey component", () => {
                 tabOverview: "Overview",
                 tabOverviewDescription: "Current key.",
                 tabCli: "CLI usage",
+                tabCliSetup: "CLI setup",
                 tabCliDescription: "Install snippets.",
                 tabCredentials: "Credentials",
                 tabCredentialsDescription: "Credential inventory.",
@@ -244,7 +251,7 @@ describe("apikey component", () => {
     const wrapper = mountApikey();
     await wrapper.vm.$nextTick();
 
-    expect(wrapper.findAll(".apikey-tab")).toHaveLength(5);
+    expect(wrapper.findAll(".apikey-tab")).toHaveLength(2);
     expect(wrapper.find(".apikey-card-main").exists()).toBe(true);
     expect(wrapper.find(".apikey-cli-card").exists()).toBe(false);
 
@@ -406,6 +413,23 @@ describe("apikey component", () => {
     );
   });
 
+  it("masks a legacy key loaded from the API while keeping export actions available", async () => {
+    api.get.mockResolvedValue({
+      data: { active: true, apiKey: "legacy-secret-value" },
+    });
+
+    const wrapper = mountApikey();
+    await vi.waitFor(() =>
+      expect(wrapper.vm.legacyKeyLoadedFromServer).toBe(true),
+    );
+
+    expect(wrapper.find(".apikey-value").text()).toMatch(/^lega•+alue$/);
+    expect(wrapper.text()).not.toContain("legacy-secret-value");
+    expect(wrapper.findAll(".apikey-actions button")[0].element.disabled).toBe(
+      false,
+    );
+  });
+
   it("rotates the legacy API key with a standard expiration policy", async () => {
     api.get.mockResolvedValue({ data: { apiKey: "current-key" } });
     api.put.mockResolvedValue({
@@ -530,7 +554,7 @@ describe("apikey component", () => {
     expect(createAction.props("accessibleLabel")).toBe("Create credential");
 
     await createAction.trigger("click");
-    expect(wrapper.vm.activeApikeyTab).toBe("create");
+    expect(wrapper.vm.activeApikeyTab).toBe("credentials");
   });
 
   it("submits a named credential once and navigates to reveal-once state", async () => {
