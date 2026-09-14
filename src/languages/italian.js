@@ -1765,6 +1765,14 @@ export default {
       "Non è stato possibile inviare l'invito. Controlla i campi visibili o contatta un amministratore.",
     modifyFormHelp:
       "Questa form aggiorna solo i campi profilo account modificabili e salvati da Idelium.",
+    confirmModifyTitle: "Conferma modifiche account",
+    confirmModifyMessage:
+      "Controlla le modifiche riportate sotto prima di aggiornare questo account.",
+    confirmModifyPassword: "Imposta una nuova password",
+    confirmModifyRole: "Cambia il ruolo assegnato",
+    confirmModifyProfile: "Aggiorna il profilo dell'account",
+    confirmModifyActivation: "Forza l'attivazione di questo account invitato",
+    confirmModify: "Conferma modifiche",
     forceActivate: "Forza attivazione",
     forceActivateHelp:
       "Usa questa opzione solo dopo aver verificato l'identità dell'utente. Abilita l'accesso senza modificare la password esistente.",

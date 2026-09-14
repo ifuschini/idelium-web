@@ -25,7 +25,7 @@
           <div class="account-form-intro">
             {{ language[config.currentLanguage].Accounts.formHelp }}
           </div>
-          <form @submit.prevent="sendData()">
+          <form @submit.prevent="requestSubmit()">
             <div class="account-form-mode">
               {{
                 isModifyType
@@ -99,10 +99,15 @@
             </div>
             <div class="account-invitation-notice" v-if="!isModifyType">
               <strong>
-                {{ language[config.currentLanguage].Accounts.invitationNoticeTitle }}
+                {{
+                  language[config.currentLanguage].Accounts
+                    .invitationNoticeTitle
+                }}
               </strong>
               <span>
-                {{ language[config.currentLanguage].Accounts.invitationExpiryHelp }}
+                {{
+                  language[config.currentLanguage].Accounts.invitationExpiryHelp
+                }}
               </span>
             </div>
             <div class="mb-3" v-if="isModifyType">
@@ -129,7 +134,9 @@
                 id="account-password-feedback"
                 class="invalid-feedback d-block"
               >
-                {{ language[config.currentLanguage].Accounts.passwordPolicyError }}
+                {{
+                  language[config.currentLanguage].Accounts.passwordPolicyError
+                }}
               </div>
             </div>
             <div class="form-check mb-3" v-if="isModifyType && isInvited">
@@ -143,7 +150,9 @@
                 {{ language[config.currentLanguage].Accounts.forceActivate }}
               </label>
               <div class="form-text">
-                {{ language[config.currentLanguage].Accounts.forceActivateHelp }}
+                {{
+                  language[config.currentLanguage].Accounts.forceActivateHelp
+                }}
               </div>
             </div>
             <div class="mb-3" v-if="isModifyType">
@@ -250,11 +259,50 @@
           <button
             type="button"
             class="btn btn-warning btn-sm"
-            @click="sendData()"
+            @click="requestSubmit()"
             :disabled="disableButton"
           >
             {{ labelButtonAction }}
           </button>
+        </div>
+        <div
+          v-if="showConfirmation"
+          class="account-confirmation"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="account-confirmation-title"
+        >
+          <div class="account-confirmation-card">
+            <h6 id="account-confirmation-title">
+              {{ language[config.currentLanguage].Accounts.confirmModifyTitle }}
+            </h6>
+            <p>
+              {{
+                language[config.currentLanguage].Accounts.confirmModifyMessage
+              }}
+            </p>
+            <ul>
+              <li v-for="change in modificationChanges" :key="change">
+                {{ change }}
+              </li>
+            </ul>
+            <div class="account-confirmation-actions">
+              <button
+                type="button"
+                class="btn btn-secondary btn-sm"
+                @click="showConfirmation = false"
+              >
+                {{ language[config.currentLanguage].Accounts.btnCancel }}
+              </button>
+              <button
+                type="button"
+                class="btn btn-warning btn-sm"
+                @click="confirmSubmit"
+              >
+                {{ language[config.currentLanguage].Accounts.confirmModify }}
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -294,6 +342,7 @@ export default {
       isModifyType: true,
       labelButtonAction: null,
       disableButton: true,
+      showConfirmation: false,
       emailCheck: true,
       dataAccount: {
         id: null,
@@ -369,6 +418,18 @@ export default {
     rolePickerCopy() {
       return this.language[this.config.currentLanguage].Accounts.rolePicker;
     },
+    modificationChanges() {
+      const copy = this.language[this.config.currentLanguage].Accounts;
+      const changes = [];
+      if (this.password.length > 0) changes.push(copy.confirmModifyPassword);
+      if (String(this.selectedRole) !== String(this.dataAccount.role)) {
+        changes.push(copy.confirmModifyRole);
+      }
+      if (this.name !== this.dataAccount.name)
+        changes.push(copy.confirmModifyProfile);
+      if (this.forceActivate) changes.push(copy.confirmModifyActivation);
+      return changes.length > 0 ? changes : [copy.confirmModifyProfile];
+    },
   },
   watch: {
     password() {
@@ -441,6 +502,7 @@ export default {
       this.disableButton = true;
       this.emailCheck = true;
       this.replacementAdminId = "";
+      this.showConfirmation = false;
       if (type == "modify") {
         this.isModifyType = true;
         this.dataAccount = dataAccount;
@@ -475,6 +537,18 @@ export default {
       this.activateButton();
       this.modalElem.show();
     },
+    requestSubmit() {
+      if (this.disableButton) return;
+      if (this.type === "modify") {
+        this.showConfirmation = true;
+        return;
+      }
+      this.sendData();
+    },
+    confirmSubmit() {
+      this.showConfirmation = false;
+      this.sendData();
+    },
     sendData() {
       let sendData = {
         name: this.name,
@@ -496,6 +570,7 @@ export default {
       hideModalSafely(this.$refs.mymodal, this.modalElem);
     },
     hideModal() {
+      this.showConfirmation = false;
       hideModalSafely(this.$refs.mymodal, this.modalElem);
     },
     roleById(roleId) {
@@ -552,6 +627,48 @@ div.account-invitation-notice span {
 .account-invitation-notice strong {
   font-weight: 800;
   margin-bottom: 0.2rem;
+}
+
+.account-confirmation {
+  align-items: center;
+  background: rgba(15, 23, 42, 0.62);
+  display: flex;
+  inset: 0;
+  justify-content: center;
+  padding: 1rem;
+  position: absolute;
+  z-index: 10;
+}
+
+.account-confirmation-card {
+  background: var(--bs-body-bg, #ffffff);
+  border: 1px solid var(--bs-border-color, #d7dee8);
+  border-radius: 0.75rem;
+  box-shadow: 0 1rem 2rem rgba(15, 23, 42, 0.22);
+  color: var(--bs-body-color, #172033);
+  max-width: 32rem;
+  padding: 1.25rem;
+  width: 100%;
+}
+
+.account-confirmation-card h6 {
+  font-size: 1.1rem;
+  margin-bottom: 0.75rem;
+}
+
+.account-confirmation-card p {
+  margin-bottom: 0.75rem;
+}
+
+.account-confirmation-card ul {
+  margin-bottom: 1rem;
+  padding-left: 1.25rem;
+}
+
+.account-confirmation-actions {
+  display: flex;
+  gap: 0.6rem;
+  justify-content: flex-end;
 }
 
 @media (max-width: 576px) {

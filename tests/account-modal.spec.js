@@ -1,5 +1,6 @@
 import { mount } from "@vue/test-utils";
 import { describe, expect, it, vi } from "vitest";
+import { nextTick } from "vue";
 
 vi.mock("bootstrap", () => ({
   Modal: vi.fn(function Modal() {
@@ -188,11 +189,41 @@ describe("account modal", () => {
     wrapper.vm.sendData();
 
     expect(wrapper.emitted("updateData")[0][0]).toEqual({
+      forceActivate: false,
       id: 42,
       name: "Renamed User",
       password: "Password1",
       replacementAdminId: null,
       role: 2,
+      type: "modify",
+    });
+  });
+
+  it("requires confirmation before submitting account modifications", async () => {
+    const wrapper = mountAccountModal();
+
+    wrapper.vm.showModal(
+      {
+        email: "existing@example.com",
+        id: 42,
+        idCostumer: 7,
+        name: "Existing User",
+        role: 2,
+      },
+      "modify",
+    );
+    wrapper.vm.name = "Renamed User";
+
+    wrapper.vm.requestSubmit();
+    await nextTick();
+    expect(wrapper.vm.showConfirmation).toBe(true);
+    expect(wrapper.emitted("updateData")).toBeUndefined();
+    expect(wrapper.find(".account-confirmation").exists()).toBe(true);
+
+    wrapper.vm.confirmSubmit();
+    expect(wrapper.emitted("updateData")[0][0]).toMatchObject({
+      id: 42,
+      name: "Renamed User",
       type: "modify",
     });
   });

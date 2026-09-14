@@ -590,7 +590,7 @@ describe("administration enterprise listings", () => {
     );
     expect(api.put).toHaveBeenCalledWith(
       "/api/admin/accounts/42",
-      { name: "Admin", password: "Password1" },
+      { name: "Admin", password: "Password1", forceActivate: false },
       { headers: {} },
     );
   });

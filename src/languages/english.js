@@ -1761,6 +1761,14 @@ export default {
       "The invitation could not be submitted. Check the visible fields or contact an administrator.",
     modifyFormHelp:
       "This form updates only the editable account profile fields saved by Idelium.",
+    confirmModifyTitle: "Confirm account changes",
+    confirmModifyMessage:
+      "Review the changes below before updating this account.",
+    confirmModifyPassword: "Set a new password",
+    confirmModifyRole: "Change the assigned role",
+    confirmModifyProfile: "Update the account profile",
+    confirmModifyActivation: "Force activation for this invited account",
+    confirmModify: "Confirm changes",
     forceActivate: "Force activation",
     forceActivateHelp:
       "Use this only after verifying the user identity. It enables sign-in without changing the existing password.",
