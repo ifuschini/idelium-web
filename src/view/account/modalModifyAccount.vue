@@ -636,8 +636,8 @@ div.account-invitation-notice span {
   inset: 0;
   justify-content: center;
   padding: 1rem;
-  position: absolute;
-  z-index: 10;
+  position: fixed;
+  z-index: 2000;
 }
 
 .account-confirmation-card {
