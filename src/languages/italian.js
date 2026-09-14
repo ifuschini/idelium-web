@@ -1898,7 +1898,7 @@ export default {
     nameHelp:
       "Usa il nome visualizzato nelle liste account e nelle viste profilo.",
     passwordHelp:
-      "Usa una password conforme alla policy configurata in Idelium.",
+      "Usa almeno 12 caratteri con maiuscole, minuscole, un numero e un simbolo.",
     listEyebrow: "Amministrazione identità",
     listTitle: "Account",
     listDescription:

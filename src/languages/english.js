@@ -1893,7 +1893,7 @@ export default {
     emailHelp: "The email address is used as the sign-in account.",
     nameHelp: "Use the display name shown in account lists and profile views.",
     passwordHelp:
-      "Use a password that satisfies the configured Idelium password policy.",
+      "Use at least 12 characters with uppercase, lowercase, a number, and a symbol.",
     listEyebrow: "Identity administration",
     listTitle: "Accounts",
     listDescription:
