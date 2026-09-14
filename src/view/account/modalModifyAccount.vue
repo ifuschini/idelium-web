@@ -517,8 +517,8 @@ export default {
 
 <style scoped>
 .modal-dialog {
-  max-width: 900px;
-  width: calc(100% - 2rem);
+  max-width: 900px !important;
+  width: calc(100% - 2rem) !important;
 }
 
 .account-invitation-notice {
@@ -535,7 +535,7 @@ export default {
 
 @media (max-width: 576px) {
   .modal-dialog {
-    width: calc(100% - 1rem);
+    width: calc(100% - 1rem) !important;
   }
 }
 </style>
