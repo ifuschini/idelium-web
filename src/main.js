@@ -145,6 +145,7 @@ app.config.globalProperties.config = {
     accounts: "admin/accounts",
     profile: "admin/profile",
     apikey: "admin/apikey",
+    serviceAccounts: "admin/service-accounts",
     costumers: "admin/costumers",
     projects: "admin/projects",
     environments: "admin/environments",

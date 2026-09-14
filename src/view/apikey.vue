@@ -1872,6 +1872,7 @@ export default {
           this.legacyKeyPersisted =
             !this.apikey && response.data.active !== false;
           this.credentials = this.normalizeCredentialResponse(response.data);
+          this.loadCredentialInventory();
         })
         .catch((e) => {
           this.emitter.emit("showLoader", false);
@@ -2063,8 +2064,22 @@ export default {
     credentialEndpoint() {
       return (
         this.config.serviceBaseUrl +
-        (this.config.url.credentials || `${this.config.url.apikey}/credentials`)
+        (this.config.url.serviceAccounts || "admin/service-accounts")
       );
+    },
+    loadCredentialInventory() {
+      apiClient
+        .get(this.credentialEndpoint(), { headers: this.setHeaders() })
+        .then((response) => {
+          const payload = response.data;
+          const listed = Array.isArray(payload)
+            ? payload
+            : (payload?.serviceAccounts ?? payload?.credentials);
+          if (Array.isArray(listed)) this.credentials = listed;
+        })
+        .catch(() => {
+          // The legacy metadata remains useful when named credentials are unavailable.
+        });
     },
     credentialErrorLabel(error) {
       return (

@@ -435,6 +435,30 @@ describe("apikey component", () => {
     );
   });
 
+  it("reloads named credentials from the service-account inventory endpoint", async () => {
+    api.get
+      .mockResolvedValueOnce({ data: { active: true } })
+      .mockResolvedValueOnce({
+        data: [
+          {
+            credentialId: "svc-1",
+            name: "CI deployment",
+            scopes: ["run:execute"],
+            status: "active",
+          },
+        ],
+      });
+
+    const wrapper = mountApikey();
+    await vi.waitFor(() => expect(wrapper.vm.credentialRows).toHaveLength(1));
+
+    expect(wrapper.vm.credentialRows[0].name).toBe("CI deployment");
+    expect(api.get).toHaveBeenCalledWith(
+      "/api/admin/service-accounts",
+      expect.objectContaining({ headers: {} }),
+    );
+  });
+
   it("rotates the legacy API key with a standard expiration policy", async () => {
     api.get.mockResolvedValue({ data: { apiKey: "current-key" } });
     api.put.mockResolvedValue({
@@ -594,7 +618,7 @@ describe("apikey component", () => {
     await vi.waitFor(() => expect(api.post).toHaveBeenCalled());
 
     expect(api.post).toHaveBeenCalledWith(
-      "/api/apikey/credentials",
+      "/api/admin/service-accounts",
       expect.objectContaining({
         description: "CI token",
         name: "CI",
@@ -763,7 +787,7 @@ describe("apikey component", () => {
     await vi.waitFor(() => expect(api.post).toHaveBeenCalled());
 
     expect(api.post).toHaveBeenCalledWith(
-      "/api/apikey/credentials/cred-old/rotate",
+      "/api/admin/service-accounts/cred-old/rotate",
       {
         credentialId: "cred-old",
         policy: "overlap-7d",
@@ -868,7 +892,7 @@ describe("apikey component", () => {
     await vi.waitFor(() => expect(api.post).toHaveBeenCalled());
 
     expect(api.post).toHaveBeenCalledWith(
-      "/api/apikey/credentials/cred-old/revoke",
+      "/api/admin/service-accounts/cred-old/revoke",
       {
         actor: "current-user",
         credentialId: "cred-old",
