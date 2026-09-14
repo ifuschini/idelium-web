@@ -189,10 +189,6 @@ export default {
     allStatuses: "All statuses",
     allRuntimes: "All runtimes",
     statusActive: "Active",
-    keyStoredTitle: "Key stored securely",
-    keyStoredHelp:
-      "The complete key is not returned after reload. Rotate the key to reveal a new value.",
-    keyNotGenerated: "No API key has been generated yet.",
     statusArchived: "Archived",
     statusInvalid: "Requires attention",
     id: "#",
@@ -1549,6 +1545,10 @@ export default {
     legacyMaskedValue: "Masked legacy CLI key",
     legacyCliKeyTitle: "Legacy CLI key",
     legacyLoading: "Loading legacy key status…",
+    keyStoredTitle: "Key stored securely",
+    keyStoredHelp:
+      "The complete key is not returned after reload. Rotate the key to reveal a new value.",
+    keyNotGenerated: "No API key has been generated yet.",
     packageEyebrow: "Package",
     cliTitle: "Idelium CLI",
     cliInfo:
