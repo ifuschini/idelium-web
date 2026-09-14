@@ -119,22 +119,54 @@
       :can-assign-roles="accountCapabilities.includes('account.role.assign')"
       v-on:updateData="updateData"
     />
-    <div v-if="invitationPreview" class="invitation-preview-backdrop" role="presentation">
-      <section class="invitation-preview" role="dialog" aria-modal="true" aria-labelledby="invitation-preview-title">
+    <div
+      v-if="invitationPreview"
+      class="invitation-preview-backdrop"
+      role="presentation"
+    >
+      <section
+        class="invitation-preview"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="invitation-preview-title"
+      >
         <div class="invitation-preview__header">
-          <h2 id="invitation-preview-title">{{ copy.invitationPreview.title }}</h2>
-          <button type="button" class="btn-close" :aria-label="copy.invitationPreview.close" v-on:click="closeInvitationPreview"></button>
+          <h2 id="invitation-preview-title">
+            {{ copy.invitationPreview.title }}
+          </h2>
+          <button
+            type="button"
+            class="btn-close"
+            :aria-label="copy.invitationPreview.close"
+            v-on:click="closeInvitationPreview"
+          ></button>
         </div>
-        <p class="invitation-preview__status">{{ copy.invitationPreview.requested }}</p>
+        <p class="invitation-preview__status">
+          {{ copy.invitationPreview.requested }}
+        </p>
         <dl>
-          <div><dt>{{ copy.invitationPreview.to }}</dt><dd>{{ invitationPreview.email }}</dd></div>
-          <div><dt>{{ copy.invitationPreview.subject }}</dt><dd>{{ invitationPreview.subject }}</dd></div>
+          <div>
+            <dt>{{ copy.invitationPreview.to }}</dt>
+            <dd>{{ invitationPreview.email }}</dd>
+          </div>
+          <div>
+            <dt>{{ copy.invitationPreview.subject }}</dt>
+            <dd>{{ invitationPreview.subject }}</dd>
+          </div>
         </dl>
         <div class="invitation-preview__body">
           {{ invitationPreview.body }}
-          <a class="invitation-preview__link" :href="invitationPreview.link">{{ invitationPreview.link }}</a>
+          <a class="invitation-preview__link" :href="invitationPreview.link">{{
+            invitationPreview.link
+          }}</a>
         </div>
-        <button type="button" class="btn btn-primary" v-on:click="closeInvitationPreview">{{ copy.invitationPreview.close }}</button>
+        <button
+          type="button"
+          class="btn btn-primary"
+          v-on:click="closeInvitationPreview"
+        >
+          {{ copy.invitationPreview.close }}
+        </button>
       </section>
     </div>
   </EnterpriseListingPage>
@@ -378,8 +410,7 @@ export default {
           id: "reactivate",
           label: this.copy.btnReactivate,
           placement: "overflow",
-          tooltip:
-            this.copy.tooltips?.reactivate ?? this.copy.btnReactivate,
+          tooltip: this.copy.tooltips?.reactivate ?? this.copy.btnReactivate,
         },
         {
           capability: "account.audit",
@@ -898,13 +929,22 @@ export default {
           },
           { headers: this.setHeaders() },
         );
+      const profileChanged =
+        !account ||
+        account.name !== data.name ||
+        Boolean(data.password) ||
+        data.forceActivate === true;
+      const saveProfileIfChanged = () =>
+        profileChanged ? profileRequest() : Promise.resolve({ data: null });
       const roleChanged = account && String(account.role) !== String(data.role);
       const request = roleChanged
         ? this.confirmPrivilegedRoleChange(account, data).then((confirmed) => {
             if (!confirmed) return null;
-            return this.submitRoleChange(account, data).then(profileRequest);
+            return this.submitRoleChange(account, data).then(
+              saveProfileIfChanged,
+            );
           })
-        : profileRequest();
+        : saveProfileIfChanged();
       return request
         .then((response) => {
           if (response === null) return null;

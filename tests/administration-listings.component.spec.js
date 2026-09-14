@@ -593,6 +593,19 @@ describe("administration enterprise listings", () => {
       { name: "Admin", password: "Password1", forceActivate: false },
       { headers: {} },
     );
+
+    api.post.mockClear();
+    api.put.mockClear();
+    await wrapper.vm.updateAccount({
+      id: 42,
+      name: "Admin",
+      password: "",
+      replacementAdminId: "43",
+      role: 3,
+      type: "modify",
+    });
+    expect(api.post).toHaveBeenCalled();
+    expect(api.put).not.toHaveBeenCalled();
   });
 
   it("loads tenant-scoped redacted audit history and queues authorized exports", async () => {
