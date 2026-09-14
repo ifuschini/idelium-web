@@ -1899,6 +1899,8 @@ export default {
       "Usa il nome visualizzato nelle liste account e nelle viste profilo.",
     passwordHelp:
       "Usa almeno 12 caratteri con maiuscole, minuscole, un numero e un simbolo.",
+    passwordPolicyError:
+      "La password deve avere almeno 12 caratteri e includere maiuscole, minuscole, un numero e un simbolo.",
     listEyebrow: "Amministrazione identità",
     listTitle: "Account",
     listDescription:

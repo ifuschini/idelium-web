@@ -115,9 +115,18 @@
                 v-model="password"
                 type="password"
                 autocomplete="new-password"
+                :class="{ 'is-invalid': password.length > 0 && !checkPassword }"
+                aria-describedby="account-password-feedback"
               />
               <div class="form-text">
                 {{ language[config.currentLanguage].Accounts.passwordHelp }}
+              </div>
+              <div
+                v-if="password.length > 0 && !checkPassword"
+                id="account-password-feedback"
+                class="invalid-feedback d-block"
+              >
+                {{ language[config.currentLanguage].Accounts.passwordPolicyError }}
               </div>
             </div>
             <div class="form-check mb-3" v-if="isModifyType && isInvited">

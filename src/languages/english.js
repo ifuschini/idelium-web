@@ -1894,6 +1894,8 @@ export default {
     nameHelp: "Use the display name shown in account lists and profile views.",
     passwordHelp:
       "Use at least 12 characters with uppercase, lowercase, a number, and a symbol.",
+    passwordPolicyError:
+      "Password must be at least 12 characters and include uppercase, lowercase, a number, and a symbol.",
     listEyebrow: "Identity administration",
     listTitle: "Accounts",
     listDescription:
