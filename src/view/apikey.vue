@@ -1825,7 +1825,11 @@ export default {
       if (!this.$router?.push) return;
       const targetParams = { ...(this.$route?.params ?? {}) };
       if (normalizedTab === "overview") delete targetParams.tab;
-      else targetParams.tab = normalizedTab;
+      else {
+        targetParams.tab = ["create", "operations"].includes(tab)
+          ? tab
+          : normalizedTab;
+      }
       this.$router.push({
         name: "apikey",
         params: targetParams,
@@ -1837,7 +1841,7 @@ export default {
       this.revocationTarget = null;
       this.credentialCreateErrors = [];
       this.showCreateCredentialPanel = true;
-      this.selectApiKeyTab("credentials");
+      this.selectApiKeyTab("create");
     },
     cancelCreatePanel() {
       this.showCreateCredentialPanel = false;

@@ -284,6 +284,21 @@ describe("apikey component", () => {
     });
   });
 
+  it("keeps the credential creation panel open after clicking Create API key", async () => {
+    api.get.mockResolvedValue({ data: { apiKey: "token" } });
+    const push = vi.fn();
+    const wrapper = mountApikey({ router: { push } });
+    await wrapper.vm.$nextTick();
+
+    wrapper.vm.openCreatePanel();
+
+    expect(wrapper.vm.showCreateCredentialPanel).toBe(true);
+    expect(wrapper.vm.activeApikeyTab).toBe("credentials");
+    expect(push).toHaveBeenCalledWith(
+      expect.objectContaining({ params: { tab: "create" } }),
+    );
+  });
+
   it("renders redacted pinned usage snippets and copies them accessibly", async () => {
     api.get.mockResolvedValue({ data: { apiKey: "token" } });
     const wrapper = mountApikey();
