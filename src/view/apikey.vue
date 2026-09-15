@@ -1898,6 +1898,23 @@ export default {
       if (Array.isArray(data?.credentials) && data.credentials.length > 0) {
         return data.credentials;
       }
+      if (
+        Array.isArray(data?.credentials) &&
+        !data?.apiKey &&
+        typeof data?.active !== "boolean"
+      ) {
+        return [
+          {
+            actor: "legacy",
+            id: "legacy-key",
+            lastUsedUnavailable: true,
+            legacy: true,
+            name: this.language[this.config.currentLanguage].Apikey.legacyName,
+            scopes: ["legacy"],
+            status: "unknown",
+          },
+        ];
+      }
       if (!data?.apiKey && typeof data?.active !== "boolean") return [];
       if (!data?.apiKey) {
         return [

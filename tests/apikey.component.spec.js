@@ -437,6 +437,19 @@ describe("apikey component", () => {
     });
   });
 
+  it("shows an unverifiable legacy inventory row when the metadata contract only returns credentials", async () => {
+    api.get
+      .mockResolvedValueOnce({ data: { credentials: [] } })
+      .mockResolvedValueOnce({ data: [] });
+    const wrapper = mountApikey();
+
+    await vi.waitFor(() => expect(wrapper.vm.credentialRows).toHaveLength(1));
+    expect(wrapper.vm.credentialRows[0]).toMatchObject({
+      id: "legacy-key",
+      status: "unknown",
+    });
+  });
+
   it("shows a secure stored-state message after reload without a plaintext key", async () => {
     api.get.mockResolvedValue({
       data: { active: true, expiresAt: "2027-09-11T00:00:00.000Z" },
