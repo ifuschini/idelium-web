@@ -20,7 +20,10 @@
         :aria-label="language[config.currentLanguage].Actions.userMenu"
         :title="language[config.currentLanguage].Actions.userMenu"
       >
-        <font-awesome-icon icon="user-circle" class="idelium-action-icon--user" />
+        <font-awesome-icon
+          icon="user-circle"
+          class="idelium-action-icon--user"
+        />
       </button>
       <ul
         class="dropdown-menu dropdown-menu-end"
@@ -350,10 +353,11 @@ export default {
         this.emitter.emit("refreshTestLauncher", true);
     },
     changeCostumer(id) {
+      const expiresAt = new Date(Date.now() + 60 * 60 * 1000).toISOString();
       apiClient
         .put(
           this.config.serviceBaseUrl + this.config.url.header + "/" + id,
-          {},
+          { reason: "customer-switch", expiresAt },
           {
             headers: this.setHeaders(),
           },

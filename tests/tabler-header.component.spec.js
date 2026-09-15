@@ -85,7 +85,10 @@ describe("tabler header component", () => {
 
     expect(api.put).toHaveBeenCalledWith(
       "/api/menu/header/1",
-      {},
+      expect.objectContaining({
+        reason: "customer-switch",
+        expiresAt: expect.any(String),
+      }),
       { headers: {} },
     );
   });

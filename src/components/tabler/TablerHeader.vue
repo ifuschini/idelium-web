@@ -322,10 +322,11 @@ export default {
         this.navigation.clearAll();
       }
       this.contextChangePending = true;
+      const expiresAt = new Date(Date.now() + 60 * 60 * 1000).toISOString();
       apiClient
         .put(
           this.config.serviceBaseUrl + this.config.url.header + "/" + id,
-          {},
+          { reason: "customer-switch", expiresAt },
           {
             headers: this.setHeaders(),
           },
@@ -428,7 +429,11 @@ export default {
 .idelium-tabler-header {
   align-items: center;
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(248, 250, 252, 0.94)),
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.96),
+      rgba(248, 250, 252, 0.94)
+    ),
     radial-gradient(
       circle at 12% 0%,
       rgba(255, 122, 24, 0.08),
