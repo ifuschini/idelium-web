@@ -335,7 +335,6 @@ export default {
           this.emitter.emit("showLoader", false);
           this.projectSelected = null;
           this.session.selectCustomer(id);
-          this.session.updateSessionId?.(response.data.session);
           this.refreshComponents();
           this.getProjects();
         })
