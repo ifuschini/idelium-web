@@ -1892,7 +1892,12 @@ export default {
       return `${text.slice(0, 4)}${"•".repeat(Math.min(text.length - 8, 24))}${text.slice(-4)}`;
     },
     normalizeCredentialResponse(data) {
-      if (Array.isArray(data?.credentials)) return data.credentials;
+      // Some deployments include an empty credentials collection in the legacy
+      // metadata response. Keep deriving the legacy inventory row from the
+      // metadata instead of treating that empty collection as authoritative.
+      if (Array.isArray(data?.credentials) && data.credentials.length > 0) {
+        return data.credentials;
+      }
       if (!data?.apiKey && typeof data?.active !== "boolean") return [];
       if (!data?.apiKey) {
         return [

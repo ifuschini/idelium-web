@@ -422,6 +422,21 @@ describe("apikey component", () => {
     expect(wrapper.vm.credentialRows[0].id).toBe("legacy-key");
   });
 
+  it("retains the legacy key when metadata also contains an empty credentials collection", async () => {
+    api.get
+      .mockResolvedValueOnce({
+        data: { active: true, credentials: [], expiresAt: "2027-09-11T00:00:00.000Z" },
+      })
+      .mockResolvedValueOnce({ data: [] });
+    const wrapper = mountApikey();
+
+    await vi.waitFor(() => expect(wrapper.vm.credentialRows).toHaveLength(1));
+    expect(wrapper.vm.credentialRows[0]).toMatchObject({
+      id: "legacy-key",
+      status: "active",
+    });
+  });
+
   it("shows a secure stored-state message after reload without a plaintext key", async () => {
     api.get.mockResolvedValue({
       data: { active: true, expiresAt: "2027-09-11T00:00:00.000Z" },
