@@ -412,6 +412,16 @@ describe("apikey component", () => {
     );
   });
 
+  it("retains the legacy key in inventory when named credentials are empty", async () => {
+    api.get
+      .mockResolvedValueOnce({ data: { active: true } })
+      .mockResolvedValueOnce({ data: [] });
+    const wrapper = mountApikey();
+
+    await vi.waitFor(() => expect(wrapper.vm.credentialRows).toHaveLength(1));
+    expect(wrapper.vm.credentialRows[0].id).toBe("legacy-key");
+  });
+
   it("shows a secure stored-state message after reload without a plaintext key", async () => {
     api.get.mockResolvedValue({
       data: { active: true, expiresAt: "2027-09-11T00:00:00.000Z" },
@@ -465,9 +475,11 @@ describe("apikey component", () => {
       });
 
     const wrapper = mountApikey();
-    await vi.waitFor(() => expect(wrapper.vm.credentialRows).toHaveLength(1));
+    await vi.waitFor(() => expect(wrapper.vm.credentialRows).toHaveLength(2));
 
-    expect(wrapper.vm.credentialRows[0].name).toBe("CI deployment");
+    expect(
+      wrapper.vm.credentialRows.find((row) => row.name === "CI deployment"),
+    ).toBeTruthy();
     expect(api.get).toHaveBeenCalledWith(
       "/api/admin/service-accounts",
       expect.objectContaining({ headers: {} }),

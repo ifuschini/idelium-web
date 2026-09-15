@@ -2079,7 +2079,17 @@ export default {
           const listed = Array.isArray(payload)
             ? payload
             : (payload?.serviceAccounts ?? payload?.credentials);
-          if (Array.isArray(listed)) this.credentials = listed;
+          if (Array.isArray(listed)) {
+            const legacy = this.credentials.filter(
+              (credential) =>
+                credential.legacy === true || credential.id === "legacy-key",
+            );
+            const named = listed.filter(
+              (credential) =>
+                credential.legacy !== true && credential.id !== "legacy-key",
+            );
+            this.credentials = [...legacy, ...named];
+          }
         })
         .catch(() => {
           // The legacy metadata remains useful when named credentials are unavailable.
