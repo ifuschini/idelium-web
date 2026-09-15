@@ -228,7 +228,7 @@ describe("platform enterprise grids", () => {
     expect(bootstrap.show).toHaveBeenCalled();
     expect(wrapper.emitted("savePlatform")[0][0]).toMatchObject({
       type: 1,
-      addressname: "runner.local",
+      hostname: "runner.local",
       location: 2,
       os: 10,
       osversion: 11,

@@ -377,7 +377,7 @@ export default {
       }
       const objToSave = {
         type: this.typeSelected,
-        addressname: this.address,
+        hostname: this.address,
         location: this.locationSelected,
         os: this.osSelected,
         osversion: this.osVersionSelected,
