@@ -546,7 +546,7 @@
 
     <section
       v-if="activeApikeyTab === 'credentials' && revocationTarget"
-      class="apikey-card apikey-rotation-card"
+      class="apikey-card apikey-rotation-card apikey-revocation-card"
       role="tabpanel"
     >
       <div class="apikey-card-header">
@@ -2277,6 +2277,11 @@ export default {
       this.revocationErrors = [];
       this.showCreateCredentialPanel = false;
       this.selectApiKeyTab("credentials");
+      this.$nextTick(() => {
+        document
+          .querySelector(".apikey-revocation-card")
+          ?.scrollIntoView({ behavior: "smooth", block: "center" });
+      });
     },
     cancelCredentialRevocation() {
       this.revocationTarget = null;
