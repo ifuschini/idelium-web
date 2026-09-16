@@ -710,6 +710,38 @@ describe("apikey component", () => {
     expect(Storage.prototype.setItem).not.toHaveBeenCalled();
   });
 
+  it("normalizes the service-account response before showing the reveal-once secret", async () => {
+    const push = vi.fn();
+    api.get.mockResolvedValue({ data: { credentials: [] } });
+    api.post.mockResolvedValue({
+      data: {
+        secret: "idelium_secret_revealed_once_value",
+        serviceAccount: {
+          credentialId: "cred-4",
+          name: "CI",
+          scopes: ["run:execute"],
+        },
+      },
+    });
+    const wrapper = mountApikey({ router: { push } });
+    await vi.waitFor(() => expect(api.get).toHaveBeenCalled());
+    await selectTab(wrapper, "create");
+    await wrapper.setData({
+      credentialCreate: {
+        constraints: "",
+        description: "CI token",
+        expiresAt: "2027-07-01",
+        name: "CI",
+        scopes: ["run:execute"],
+      },
+    });
+
+    await wrapper.get(".apikey-create-form").trigger("submit");
+    await vi.waitFor(() => expect(wrapper.vm.activeRevealSecret).toBe("idelium_secret_revealed_once_value"));
+    expect(wrapper.vm.revealedCredential.credential.id).toBe("cred-4");
+    expect(wrapper.find("[role=dialog]").exists()).toBe(true);
+  });
+
   it("requires acknowledgement before copying and downloading the reveal-once secret", async () => {
     api.get.mockResolvedValue({ data: { credentials: [] } });
     const createObjectURL = vi.fn(() => "blob:secret-download");

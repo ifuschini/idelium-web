@@ -1991,7 +1991,13 @@ export default {
           headers: { ...this.setHeaders(), ...request.headers },
         })
         .then((response) => {
-          this.openRevealOnceSession(response.data);
+          const payload = response.data?.serviceAccount
+            ? {
+                ...response.data.serviceAccount,
+                key: response.data.secret,
+              }
+            : response.data;
+          this.openRevealOnceSession(payload);
           this.credentials = [
             ...this.credentials,
             this.revealedCredential.credential,
