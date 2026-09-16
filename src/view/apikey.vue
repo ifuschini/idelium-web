@@ -2252,7 +2252,7 @@ export default {
     prepareCredentialRotation(row) {
       const target = this.credentials.find((credential) => {
         const id = credential.id ?? credential.credentialId ?? credential.keyId;
-        return id === row.id;
+        return String(id) === String(row.id);
       });
       this.rotationTarget = target
         ? {
@@ -2362,7 +2362,7 @@ export default {
     normalizedCredentialTarget(row) {
       const target = this.credentials.find((credential) => {
         const id = credential.id ?? credential.credentialId ?? credential.keyId;
-        return id === row.id;
+        return String(id) === String(row.id);
       });
       return target
         ? {
