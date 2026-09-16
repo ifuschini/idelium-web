@@ -55,6 +55,7 @@ describe("credential lifecycle API and migration contract", () => {
       fingerprint: "idelium_live…9abc",
       id: "cred-1",
       lastUsedAt: null,
+      legacy: false,
       lineage: {
         previousCredentialId: "",
         rotatedAt: null,
@@ -67,6 +68,23 @@ describe("credential lifecycle API and migration contract", () => {
       tenantId: "tenant-1",
     });
     expect(JSON.stringify(credential)).not.toContain("full_secret");
+  });
+
+  it("derives revoked status from the persisted revocation timestamp", () => {
+    const credential = normalizeCredentialDescriptor({
+      id: 15,
+      name: "idelio",
+      revokedAt: "2026-09-16T14:00:00Z",
+    });
+
+    expect(credential.status).toBe("revoked");
+    expect(
+      credentialInventoryActions(credential, {
+        capabilities: ["credential.revoke"],
+      }),
+    ).toEqual([
+      expect.objectContaining({ id: "revoke", disabled: true }),
+    ]);
   });
 
   it("returns secret material only in a reveal-once creation result", () => {

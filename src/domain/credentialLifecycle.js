@@ -44,7 +44,9 @@ const DEFAULT_CLI_VERSION = "1.0.14";
 export function normalizeCredentialDescriptor(input = {}, context = {}) {
   const tenantId = safeIdentifier(input.tenantId ?? context.tenantId);
   const status = normalizeCredentialStatus(
-    input.status ?? input.state ?? (input.legacy ? "legacy" : "unknown"),
+    input.revokedAt
+      ? "revoked"
+      : (input.status ?? input.state ?? (input.legacy ? "legacy" : "unknown")),
     input.expiresAt,
   );
   return {
