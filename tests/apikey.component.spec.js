@@ -746,6 +746,36 @@ describe("apikey component", () => {
     expect(wrapper.find("[role=dialog]").exists()).toBe(true);
   });
 
+  it("shows the reveal-once panel when the service account carries the secret", async () => {
+    api.get.mockResolvedValue({ data: { credentials: [] } });
+    api.post.mockResolvedValue({
+      data: {
+        serviceAccount: {
+          credentialId: "cred-nested",
+          name: "Nested secret",
+          secret: "idelium_nested_secret_value",
+          scopes: ["run:execute"],
+        },
+      },
+    });
+    const wrapper = mountApikey();
+    await vi.waitFor(() => expect(api.get).toHaveBeenCalled());
+    await selectTab(wrapper, "create");
+    await wrapper.setData({
+      credentialCreate: {
+        constraints: "",
+        description: "Nested secret",
+        expiresAt: "2027-07-01",
+        name: "Nested secret",
+        scopes: ["run:execute"],
+      },
+    });
+
+    await wrapper.get(".apikey-create-form").trigger("submit");
+    await vi.waitFor(() => expect(wrapper.find(".apikey-reveal-panel").exists()).toBe(true));
+    expect(wrapper.find(".apikey-reveal-panel code").text()).toContain("idelium_nested_secret_value");
+  });
+
   it("requires acknowledgement before copying and downloading the reveal-once secret", async () => {
     api.get.mockResolvedValue({ data: { credentials: [] } });
     const createObjectURL = vi.fn(() => "blob:secret-download");

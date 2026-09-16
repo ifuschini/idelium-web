@@ -762,7 +762,7 @@
         </div>
       </form>
       <div
-        v-if="activeRevealSecret"
+        v-if="revealedCredential"
         class="apikey-reveal-panel"
         role="region"
         :aria-label="language[config.currentLanguage].Apikey.revealOnceTitle"
@@ -784,7 +784,10 @@
             language[config.currentLanguage].Apikey.revealOnceAcknowledge
           }}</span>
         </label>
-        <code aria-live="off">{{ activeRevealSecret }}</code>
+        <code v-if="activeRevealSecret" aria-live="off">{{ activeRevealSecret }}</code>
+        <p v-else class="apikey-alert alert alert-warning">
+          {{ language[config.currentLanguage].Apikey.revealOnceExpired }}
+        </p>
         <div class="apikey-reveal-actions">
           <button
             type="button"
@@ -2026,7 +2029,10 @@ export default {
           const payload = response.data?.serviceAccount
             ? {
                 ...response.data.serviceAccount,
-                key: response.data.secret,
+                key:
+                  response.data.secret ??
+                  response.data.serviceAccount.secret ??
+                  response.data.key,
               }
             : response.data;
           this.openRevealOnceSession(payload);
