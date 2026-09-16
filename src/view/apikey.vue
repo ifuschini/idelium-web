@@ -1743,6 +1743,11 @@ export default {
         .map((action) => ({
           ...action,
           ...presentation[action.id],
+          disabled: (row) =>
+            (typeof action.disabled === "function"
+              ? action.disabled(row)
+              : action.disabled === true) ||
+            (action.id === "revoke" && row?.legacy === true),
           label: copy.actions[action.id] || action.label,
         }));
     },

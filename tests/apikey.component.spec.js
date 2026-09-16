@@ -1082,4 +1082,27 @@ describe("apikey component", () => {
     expect(wrapper.vm.credentials).toEqual([originalCredential]);
     expect(wrapper.vm.Logout).not.toHaveBeenCalled();
   });
+
+  it("disables named-credential revocation for the legacy key", async () => {
+    api.get.mockResolvedValue({
+      data: {
+        active: true,
+        credentials: [
+          {
+            id: "legacy-key",
+            legacy: true,
+            name: "Legacy API key",
+            status: "legacy",
+          },
+        ],
+      },
+    });
+    const wrapper = mountApikey();
+    await vi.waitFor(() => expect(wrapper.vm.credentialRows).toHaveLength(1));
+
+    const revoke = wrapper.vm.credentialActions.find(
+      (action) => action.id === "revoke",
+    );
+    expect(revoke.disabled(wrapper.vm.credentialRows[0])).toBe(true);
+  });
 });

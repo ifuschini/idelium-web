@@ -58,6 +58,7 @@ export function normalizeCredentialDescriptor(input = {}, context = {}) {
     fingerprint: credentialFingerprint(input),
     id: safeIdentifier(input.id ?? input.credentialId ?? input.keyId),
     lastUsedAt: safeIsoTimestamp(input.lastUsedAt),
+    legacy: input.legacy === true,
     lineage: normalizeLineage(input.lineage ?? input.rotation),
     name: safeText(input.name ?? input.label ?? "Credential"),
     prefix: safeText(input.prefix ?? input.keyPrefix),
@@ -94,6 +95,7 @@ export function credentialInventoryRow(credential = {}, copy = {}) {
     rowLabel: `${descriptor.name} ${descriptor.fingerprint || descriptor.prefix}`,
     scopes: descriptor.scopes.join(", "),
     status: credentialInventoryStatus(descriptor),
+    legacy: credential.legacy === true,
     tenantId: descriptor.tenantId,
   };
 }
@@ -147,10 +149,11 @@ export function credentialInventoryActions(credential = {}, options = {}) {
     .map((action) => ({
       ...action,
       disabled:
-        (action.id === "rotate" || action.id === "revoke") &&
-        [CREDENTIAL_STATUSES.REVOKED, CREDENTIAL_STATUSES.EXPIRED].includes(
-          status,
-        ),
+        ((action.id === "rotate" || action.id === "revoke") &&
+          [CREDENTIAL_STATUSES.REVOKED, CREDENTIAL_STATUSES.EXPIRED].includes(
+            status,
+          )) ||
+        (action.id === "revoke" && credential.legacy === true),
       tooltip: safeText(
         options.copy?.[`${action.id}Tooltip`] ??
           `${action.label} credential ${credential.name ?? credential.id ?? ""}`,
