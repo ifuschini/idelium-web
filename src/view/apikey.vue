@@ -2278,8 +2278,8 @@ export default {
       const target = this.normalizedCredentialTarget(row);
       this.revocationTarget = target;
       this.revocationForm = {
-        confirmFingerprint: "",
-        confirmName: "",
+        confirmFingerprint: target?.fingerprint || target?.prefix || "",
+        confirmName: target?.name || "",
         elevated: false,
         reason: "",
       };
