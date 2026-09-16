@@ -647,11 +647,19 @@
       </button>
     </section>
 
-    <section
+    <div
       v-if="activeApikeyTab === 'credentials' && showCreateCredentialPanel"
-      class="apikey-card apikey-create-card"
-      role="tabpanel"
-      aria-labelledby="create-api-key-title"
+      class="apikey-modal-backdrop"
+      role="presentation"
+      tabindex="-1"
+      v-on:click.self="cancelCreatePanel()"
+    >
+      <section
+        class="apikey-card apikey-create-card apikey-create-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="create-api-key-title"
+      >
     >
       <div class="apikey-card-header">
         <div>
@@ -794,7 +802,8 @@
           {{ revealFeedback }}
         </p>
       </div>
-    </section>
+      </section>
+    </div>
   </div>
 </template>
 <style scoped>
@@ -1284,6 +1293,24 @@
 .apikey-create-form {
   display: grid;
   gap: 1rem;
+}
+
+.apikey-modal-backdrop {
+  align-items: center;
+  background: rgb(15 23 42 / 62%);
+  display: flex;
+  inset: 0;
+  justify-content: center;
+  padding: 1.25rem;
+  position: fixed;
+  z-index: 2000;
+}
+
+.apikey-create-modal {
+  max-height: min(90vh, 760px);
+  max-width: 720px;
+  overflow-y: auto;
+  width: min(100%, 720px);
 }
 
 .apikey-rotation-card {
