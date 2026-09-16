@@ -1080,5 +1080,6 @@ describe("apikey component", () => {
       "Credential revocation failed.",
     ]);
     expect(wrapper.vm.credentials).toEqual([originalCredential]);
+    expect(wrapper.vm.Logout).not.toHaveBeenCalled();
   });
 });

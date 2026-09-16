@@ -2337,7 +2337,7 @@ export default {
           this.revocationErrors = [
             this.language[this.config.currentLanguage].Apikey.revocationFailed,
           ];
-          this.Logout(this, e);
+          if (e?.response?.status === 401) this.Logout(this, e);
         });
     },
     normalizedCredentialTarget(row) {
