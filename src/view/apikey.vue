@@ -2310,7 +2310,9 @@ export default {
       this.revocationErrors = [];
       return apiClient
         .post(
-          this.credentialRevocationEndpoint(this.revocationTarget.id),
+          this.credentialRevocationEndpoint(
+            this.revocationTarget.serviceAccountId ?? this.revocationTarget.id,
+          ),
           request.body,
           {
             headers: { ...this.setHeaders(), ...request.headers },
@@ -2350,6 +2352,8 @@ export default {
             fingerprint:
               target.fingerprint || target.keyPrefix || target.prefix,
             id: target.id ?? target.credentialId ?? target.keyId,
+            serviceAccountId:
+              target.id ?? target.serviceAccountId ?? target.accountId,
             lastUsedAt: target.lastUsedAt || null,
             scopes: Array.isArray(target.scopes)
               ? target.scopes
