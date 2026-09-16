@@ -738,9 +738,28 @@
         >
           {{ credentialCreateErrors.join(", ") }}
         </p>
-        <button type="submit" class="btn btn-primary apikey-primary-action">
-          {{ language[config.currentLanguage].Apikey.actions.create }}
-        </button>
+        <div class="apikey-create-actions">
+          <button
+            type="submit"
+            class="btn btn-primary apikey-primary-action"
+            :disabled="credentialCreateSubmitting"
+            :aria-busy="credentialCreateSubmitting ? 'true' : 'false'"
+          >
+            {{
+              credentialCreateSubmitting
+                ? language[config.currentLanguage].Apikey.creatingCredential
+                : language[config.currentLanguage].Apikey.actions.create
+            }}
+          </button>
+          <button
+            type="button"
+            class="btn btn-outline-secondary apikey-secondary-action"
+            :disabled="credentialCreateSubmitting"
+            v-on:click="closeCreateCredentialModal()"
+          >
+            {{ language[config.currentLanguage].Apikey.actions.cancel }}
+          </button>
+        </div>
       </form>
       <div
         v-if="activeRevealSecret"
@@ -1295,6 +1314,12 @@
   gap: 1rem;
 }
 
+.apikey-create-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
 .apikey-modal-backdrop {
   align-items: center;
   background: rgb(15 23 42 / 62%);
@@ -1580,6 +1605,7 @@ export default {
       },
       credentialCreate: defaultCredentialCreationModel(),
       credentialCreateErrors: [],
+      credentialCreateSubmitting: false,
       revealAcknowledged: false,
       revealFeedback: "",
       revealTimeoutId: null,
@@ -1976,6 +2002,7 @@ export default {
       ];
     },
     createCredential() {
+      if (this.credentialCreateSubmitting) return;
       const request = createCredentialCreationRequest(this.credentialCreate, {
         actor: "current-user",
         actorScopes: ["run:execute", "artifact:read", "credential:admin"],
@@ -1990,6 +2017,7 @@ export default {
         return;
       }
       this.credentialCreateErrors = [];
+      this.credentialCreateSubmitting = true;
       apiClient
         .post(this.credentialEndpoint(), request.body, {
           headers: { ...this.setHeaders(), ...request.headers },
@@ -2025,6 +2053,9 @@ export default {
             this.language[this.config.currentLanguage].Apikey.createFailed,
           ];
           this.Logout(this, e);
+        })
+        .finally(() => {
+          this.credentialCreateSubmitting = false;
         });
     },
     openRevealOnceSession(data) {

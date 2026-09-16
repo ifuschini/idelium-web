@@ -1648,6 +1648,7 @@ export default {
       unknown: "Sconosciuta",
     },
     createCredentialTitle: "Crea credenziale nominale",
+    creatingCredential: "Creazione…",
     createCredentialHelp:
       "La credenziale nominale è separata dalla chiave CLI legacy. Usala per una specifica integrazione con scope e scadenza dedicati.",
     description: "Descrizione",

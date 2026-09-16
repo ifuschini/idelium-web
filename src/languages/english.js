@@ -1645,6 +1645,7 @@ export default {
       unknown: "Unknown",
     },
     createCredentialTitle: "Create named credential",
+    creatingCredential: "Creating…",
     createCredentialHelp:
       "A named credential is separate from the Legacy CLI key. Use it for a specific integration with its own scopes and expiration.",
     description: "Description",
