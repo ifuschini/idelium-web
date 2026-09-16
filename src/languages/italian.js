@@ -1649,7 +1649,7 @@ export default {
     },
     createCredentialTitle: "Crea credenziale nominale",
     createCredentialHelp:
-      "Parti dallo scope minimo approvato e aggiungi solo i permessi necessari all'integrazione.",
+      "La credenziale nominale è separata dalla chiave CLI legacy. Usala per una specifica integrazione con scope e scadenza dedicati.",
     description: "Descrizione",
     constraints: "Vincoli approvati",
     createFailed: "Creazione credenziale non riuscita.",

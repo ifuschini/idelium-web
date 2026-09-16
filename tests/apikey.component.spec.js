@@ -309,6 +309,10 @@ describe("apikey component", () => {
     expect(wrapper.find('[role="dialog"]').exists()).toBe(true);
     expect(wrapper.find('[aria-modal="true"]').exists()).toBe(true);
     expect(wrapper.find(".apikey-create-form").exists()).toBe(true);
+
+    wrapper.vm.closeCreateCredentialModal();
+    await wrapper.vm.$nextTick();
+    expect(wrapper.find('[role="dialog"]').exists()).toBe(false);
   });
 
   it("renders redacted pinned usage snippets and copies them accessibly", async () => {

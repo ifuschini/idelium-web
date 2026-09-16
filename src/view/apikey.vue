@@ -652,7 +652,7 @@
       class="apikey-modal-backdrop"
       role="presentation"
       tabindex="-1"
-      v-on:click.self="cancelCreatePanel()"
+      v-on:click.self="closeCreateCredentialModal()"
     >
       <section
         class="apikey-card apikey-create-card apikey-create-modal"
@@ -676,7 +676,7 @@
         <button
           type="button"
           class="btn btn-outline-secondary apikey-secondary-action"
-          v-on:click="cancelCreatePanel()"
+          v-on:click="closeCreateCredentialModal()"
         >
           {{ language[config.currentLanguage].Apikey.actions.cancel }}
         </button>
@@ -1873,6 +1873,10 @@ export default {
     cancelCreatePanel() {
       this.showCreateCredentialPanel = false;
       this.credentialCreateErrors = [];
+    },
+    closeCreateCredentialModal() {
+      this.clearRevealOnceSecret("dismissed");
+      this.cancelCreatePanel();
     },
     makeToast(text) {
       this.$wkToast(text);

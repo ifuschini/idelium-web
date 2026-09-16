@@ -1646,7 +1646,7 @@ export default {
     },
     createCredentialTitle: "Create named credential",
     createCredentialHelp:
-      "Start with the minimum approved scope and add only the permissions this integration needs.",
+      "A named credential is separate from the Legacy CLI key. Use it for a specific integration with its own scopes and expiration.",
     description: "Description",
     constraints: "Approved constraints",
     createFailed: "Credential creation failed.",
