@@ -545,7 +545,7 @@
     </section>
 
     <div
-      v-if="activeApikeyTab === 'credentials' && revocationTarget"
+      v-if="revocationTarget"
       class="apikey-modal-backdrop"
       role="presentation"
       tabindex="-1"
