@@ -544,17 +544,25 @@
       </button>
     </section>
 
-    <section
+    <div
       v-if="activeApikeyTab === 'credentials' && revocationTarget"
-      class="apikey-card apikey-rotation-card apikey-revocation-card"
-      role="tabpanel"
+      class="apikey-modal-backdrop"
+      role="presentation"
+      tabindex="-1"
+      v-on:click.self="cancelCredentialRevocation()"
     >
+      <section
+        class="apikey-card apikey-rotation-card apikey-revocation-card apikey-create-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="revoke-credential-title"
+      >
       <div class="apikey-card-header">
         <div>
           <p class="apikey-eyebrow">
             {{ language[config.currentLanguage].Apikey.revocationTitle }}
           </p>
-          <h2 class="apikey-card-title">
+          <h2 id="revoke-credential-title" class="apikey-card-title">
             {{ revocationTarget.name }}
           </h2>
           <p class="apikey-cli-copy">
@@ -645,7 +653,8 @@
       >
         {{ language[config.currentLanguage].Apikey.actions.revoke }}
       </button>
-    </section>
+      </section>
+    </div>
 
     <div
       v-if="activeApikeyTab === 'credentials' && showCreateCredentialPanel"
