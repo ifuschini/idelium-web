@@ -2040,12 +2040,14 @@ export default {
           headers: { ...this.setHeaders(), ...request.headers },
         })
         .then((response) => {
-          const payload = response.data?.serviceAccount
+          const serviceAccount =
+            response.data?.serviceAccount ?? response.data?.data;
+          const payload = serviceAccount
             ? {
-                ...response.data.serviceAccount,
+                ...serviceAccount,
                 key:
                   response.data.secret ??
-                  response.data.serviceAccount.secret ??
+                  serviceAccount.secret ??
                   response.data.key,
               }
             : response.data;
@@ -2188,7 +2190,7 @@ export default {
           const payload = response.data;
           const listed = Array.isArray(payload)
             ? payload
-            : (payload?.serviceAccounts ?? payload?.credentials);
+            : (payload?.serviceAccounts ?? payload?.credentials ?? payload?.data);
           if (Array.isArray(listed)) {
             const legacy = this.credentials.filter(
               (credential) =>

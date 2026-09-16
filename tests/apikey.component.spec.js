@@ -776,6 +776,38 @@ describe("apikey component", () => {
     expect(wrapper.find(".apikey-reveal-panel code").text()).toContain("idelium_nested_secret_value");
   });
 
+  it("normalizes Laravel data envelopes for inventory and creation", async () => {
+    api.get
+      .mockResolvedValueOnce({ data: { active: true } })
+      .mockResolvedValueOnce({
+        data: {
+          data: [
+            {
+              credentialId: "credential-15",
+              id: 15,
+              name: "idelio",
+              scopes: ["run:execute"],
+              status: "active",
+            },
+          ],
+        },
+      });
+    api.post.mockResolvedValue({
+      data: {
+        data: {
+          credentialId: "credential-16",
+          id: 16,
+          name: "idelio-new",
+          scopes: ["run:execute"],
+        },
+        secret: "idelium_laravel_secret_value",
+      },
+    });
+    const wrapper = mountApikey();
+    await vi.waitFor(() => expect(wrapper.vm.credentialRows).toHaveLength(2));
+    expect(wrapper.vm.credentialRows.find((row) => row.name === "idelio").id).toBe("15");
+  });
+
   it("requires acknowledgement before copying and downloading the reveal-once secret", async () => {
     api.get.mockResolvedValue({ data: { credentials: [] } });
     const createObjectURL = vi.fn(() => "blob:secret-download");
